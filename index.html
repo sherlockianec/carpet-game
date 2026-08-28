@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Uchar Gilam — The Flying Carpet</title>
+<style>
+  html, body { margin:0; padding:0; background:#0a0812; height:100%; font-family: Georgia, 'Times New Roman', serif; }
+  #wrap { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100%; padding:16px; box-sizing:border-box; }
+  #game-container { width:100%; max-width:960px; box-shadow:0 0 40px rgba(217,164,65,0.15); border:1px solid #3a2f4a; line-height:0; }
+  h1 { color:#d9a441; font-size:15px; letter-spacing:2px; text-transform:uppercase; margin:0 0 10px; opacity:0.85; }
+  footer { color:#5a5068; font-size:11px; margin-top:10px; text-align:center; }
+  canvas { display:block; margin:0 auto; }
+</style>
+</head>
+<body>
+<div id="wrap">
+  <h1>Uchar Gilam &middot; The Flying Carpet</h1>
+  <div id="game-container"></div>
+  <footer>A browser game adapted from an Uzbek folk tale &middot; built with Phaser 3</footer>
+</div>
+
+<script src="phaser.min.js"></script>
+<script src="src/data.js"></script>
+<script src="src/draw.js"></script>
+<script src="src/DialogueBox.js"></script>
+<script src="src/SceneBookends.js"></script>
+<script src="src/SceneHallOfSkulls.js"></script>
+<script src="src/SceneVillagePalace.js"></script>
+<script src="src/SceneCarpet.js"></script>
+<script src="src/SceneTown.js"></script>
+<script src="src/SceneMiniGames.js"></script>
+<script src="src/SceneDuel.js"></script>
+<script src="src/main.js"></script>
+</body>
+</html>
