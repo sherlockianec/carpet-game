@@ -1,7 +1,9 @@
 // ============================================================
 // SceneCarpet.js — the "world map." Hold up / click-and-hold to
 // rise, release to fall, thread the gaps. Reskinned per trip via
-// STORY.carpetThemes (colors + speed + gap size all change).
+// STORY.carpetThemes (colors + speed + gap size + obstacle
+// silhouette + hazard type all change). Physics (lift/gravity/
+// margins) are unchanged from the original tuning.
 // data.quick === true renders a short, non-interactive flyover
 // used for the faster reverse-journey transitions.
 // ============================================================
@@ -22,13 +24,15 @@ class CarpetScene extends Phaser.Scene {
     this.theme = theme;
 
     drawSky(this, theme.skyTop, theme.skyBottom);
-    this.add.circle(W * 0.8, H * 0.22, 32, theme.orb, 0.9);
+    const orb = this.add.circle(W * 0.8, H * 0.22, 32, theme.orb, 0.9);
+    addFlicker(this, orb, { min: 0.85, max: 1, duration: 1800 });
     this.farLayer = makeSkylineLayer(this, theme.farColor, 60, 30, 60, 30, 50, 0.8);
     this.nearLayer = makeSkylineLayer(this, theme.nearColor, 30, 50, 110, 24, 40, 1.2);
     drawGround(this, theme.ground, 46);
 
     if (this.toLabel) {
-      this.add.text(W / 2, 50, "Flying to " + this.toLabel, { fontFamily: "Georgia, serif", fontSize: "15px", color: "#ffe9bd", fontStyle: "italic" }).setOrigin(0.5).setScrollFactor(0);
+      this.add.text(W / 2, 50, "Flying to " + this.toLabel, { fontFamily: "Georgia, serif", fontSize: "15px", color: "#ffe9bd", fontStyle: "italic" })
+        .setOrigin(0.5).setScrollFactor(0).setDepth(900);
     }
 
     if (this.quick) {
@@ -40,12 +44,15 @@ class CarpetScene extends Phaser.Scene {
     this.carpetY = H / 2;
     this.carpetVY = 0;
     this.carpet = makeCarpet(this, this.carpetX, this.carpetY);
+    this.carpet.setDepth(300);
     this.lives = 3;
     this.invuln = 0;
     this.distance = 0;
     this.targetDistance = theme.distance;
     this.obstacles = [];
+    this.hazards = [];
     this.spawnTimer = 700;
+    this.hazardTimer = 2200;
     this.ended = false;
 
     this.thrusting = false;
@@ -54,28 +61,105 @@ class CarpetScene extends Phaser.Scene {
     this.input.on("pointerout", () => this.thrusting = false);
     this.keys = this.input.keyboard.addKeys({ up: "UP", space: "SPACE", w: "W" });
 
-    this.progressBg = this.add.rectangle(W / 2, 22, W * 0.6, 10, 0x000000, 0.35).setScrollFactor(0);
-    this.progressBar = this.add.rectangle(W * 0.2, 22, 2, 10, theme.orb).setOrigin(0, 0.5).setScrollFactor(0);
-    this.livesText = this.add.text(20, 12, "\u2665 \u2665 \u2665", { fontSize: "18px", color: "#ffefc4" }).setScrollFactor(0);
-    this.add.text(W / 2, H - 14, "hold up / SPACE / click & hold to rise", { fontSize: "12px", color: "#ffffffaa" }).setOrigin(0.5).setScrollFactor(0);
+    this.progressBg = this.add.rectangle(W / 2, 22, W * 0.6, 10, 0x000000, 0.35).setScrollFactor(0).setDepth(900);
+    this.progressBar = this.add.rectangle(W * 0.2, 22, 2, 10, theme.orb).setOrigin(0, 0.5).setScrollFactor(0).setDepth(901);
+    this.livesText = this.add.text(20, 12, "\u2665 \u2665 \u2665", { fontSize: "18px", color: "#ffefc4" }).setScrollFactor(0).setDepth(900);
+    this.add.text(W / 2, H - 14, "hold up / SPACE / click & hold to rise", { fontSize: "12px", color: "#ffffffaa" }).setOrigin(0.5).setScrollFactor(0).setDepth(900);
+  }
+
+  // ---- themed obstacle silhouettes -------------------------------------
+  // Each pillar body is a plain rect (matches original collision math
+  // exactly - halfW 20 either side of x) topped with a themed cap so the
+  // player is dodging minarets/domes/canyon spires/wind-towers/storm
+  // crags instead of bare rectangles.
+  drawCap(g, dir, kind, color, accent) {
+    // dir: +1 = cap sits on top of a bottom-pillar, pointing up.
+    //      -1 = cap hangs below a top-pillar, pointing down.
+    const s = dir;
+    if (kind === "dome") {
+      g.fillStyle(color, 1);
+      g.fillEllipse(0, 0, 46, 20);
+      g.fillStyle(accent, 1);
+      g.fillCircle(0, -14 * s, 3);
+    } else if (kind === "wind") {
+      g.fillStyle(color, 1);
+      g.fillRect(-16, -26 * s, 32, 26 * s);
+      g.lineStyle(1.6, accent, 0.8);
+      for (let i = -12; i <= 12; i += 8) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, -26 * s); g.strokePath(); }
+      g.fillStyle(accent, 1);
+      g.fillRect(-18, -14 * s, 36, s > 0 ? 4 : -4);
+    } else if (kind === "canyon") {
+      g.fillStyle(color, 1);
+      const pts = [{ x: -22, y: 0 }, { x: -8, y: -30 * s }, { x: 6, y: -14 * s }, { x: 20, y: -34 * s }, { x: 22, y: 0 }];
+      g.fillPoints(pts, true);
+      g.lineStyle(1.6, INK, 0.5);
+      g.strokePoints(pts, true);
+    } else if (kind === "storm") {
+      g.fillStyle(color, 1);
+      const pts = [{ x: -20, y: 0 }, { x: -14, y: -22 * s }, { x: -2, y: -10 * s }, { x: 10, y: -30 * s }, { x: 20, y: 0 }];
+      g.fillPoints(pts, true);
+      g.fillStyle(accent, 0.9);
+      g.fillTriangle(-4, -14 * s, 4, -14 * s, 0, -26 * s);
+    } else {
+      // minaret
+      g.fillStyle(color, 1);
+      g.fillTriangle(-22, 0, 22, 0, 0, -34 * s);
+      g.fillStyle(accent, 1);
+      g.fillRect(-16, -14 * s, 32, s > 0 ? 4 : -4);
+      g.fillCircle(0, -34 * s, 3);
+    }
   }
 
   buildObstacle(gapY, gapHalf) {
     const W = this.W, H = this.H;
+    const kind = this.theme.kind || "minaret";
     const container = this.add.container(W + 40, 0);
+    container.setDepth(250);
     const g = this.add.graphics();
     g.fillStyle(this.theme.obstacleColor, 1);
     const topH = gapY - gapHalf;
     const botY = gapY + gapHalf;
     const botH = H - botY;
     g.fillRect(-20, 0, 40, topH);
-    g.fillEllipse(0, topH, 44, 16);
     g.fillRect(-20, botY, 40, botH);
-    g.fillEllipse(0, botY, 44, 16);
-    container.add(g);
+    g.lineStyle(1.6, INK, 0.35);
+    g.strokeRect(-20, 0, 40, topH);
+    g.strokeRect(-20, botY, 40, botH);
+    // themed caps at the gap-facing ends
+    const capTop = this.add.graphics();
+    capTop.setPosition(0, topH);
+    this.drawCap(capTop, -1, kind, this.theme.obstacleColor, this.theme.obstacleAccent || 0xd9a441);
+    const capBot = this.add.graphics();
+    capBot.setPosition(0, botY);
+    this.drawCap(capBot, 1, kind, this.theme.obstacleColor, this.theme.obstacleAccent || 0xd9a441);
+    container.add([g, capTop, capBot]);
     container.topH = topH;
     container.botY = botY;
     return container;
+  }
+
+  spawnHazard() {
+    // a small bird/arrow that drifts through the gap band independent of
+    // pillar placement - a second thing to track, not just a bigger wall.
+    const theme = this.theme;
+    const y = Phaser.Math.Between(this.H * 0.22, this.H * 0.78);
+    const g = this.add.graphics();
+    if (theme.hazard === "arrow") {
+      g.fillStyle(0xcfd6da, 1);
+      g.fillTriangle(-14, 0, 4, -3.5, 4, 3.5);
+      g.fillRect(4, -1.4, 12, 2.8);
+      g.fillStyle(0x8a6a4a, 1);
+      g.fillTriangle(16, 0, 24, -5, 24, 5);
+    } else {
+      g.fillStyle(0x241811, 1);
+      g.fillTriangle(-10, 0, 0, -5, 0, 5);
+      g.fillTriangle(10, 0, 0, -5, 0, 5);
+    }
+    const container = this.add.container(this.W + 30, y, [g]);
+    container.setDepth(260);
+    container._bobBase = y;
+    container._phase = Math.random() * Math.PI * 2;
+    this.hazards.push(container);
   }
 
   checkHit(o) {
@@ -83,6 +167,11 @@ class CarpetScene extends Phaser.Scene {
     const withinX = (this.carpetX + halfW > o.x - 20) && (this.carpetX - halfW < o.x + 20);
     if (!withinX) return false;
     return (this.carpetY - halfH < o.topH) || (this.carpetY + halfH > o.botY);
+  }
+
+  checkHazardHit(h) {
+    const dx = Math.abs(this.carpetX - h.x), dy = Math.abs(this.carpetY - h.y);
+    return dx < 22 && dy < 14;
   }
 
   hitObstacle() {
@@ -109,7 +198,7 @@ class CarpetScene extends Phaser.Scene {
   buildQuickMontage() {
     const W = this.W, H = this.H;
     const carpet = makeCarpet(this, -60, H / 2);
-    this.add.text(W / 2, H * 0.2, "Returning to " + (this.toLabel || "\u2026"), { fontFamily: "Georgia, serif", fontSize: "20px", color: "#ffe9bd", fontStyle: "italic" }).setOrigin(0.5);
+    this.add.text(W / 2, H * 0.2, "Returning to " + (this.toLabel || "\u2026"), { fontFamily: "Georgia, serif", fontSize: "20px", color: "#ffe9bd", fontStyle: "italic" }).setOrigin(0.5).setDepth(900);
     this.tweens.add({ targets: carpet, x: W + 80, duration: 1800, ease: "Sine.easeInOut" });
     this._advanced = false;
     const go = () => { if (!this._advanced) { this._advanced = true; GameFlow.advance(this.scene); } };
@@ -136,12 +225,21 @@ class CarpetScene extends Phaser.Scene {
     this.nearLayer.x -= this.theme.speed * 0.7 * dt;
     if (this.nearLayer.x <= -this.W) this.nearLayer.x += this.W;
 
+    const pct = Phaser.Math.Clamp(this.distance / this.targetDistance, 0, 1);
+    const ramp = 1 - pct * 0.22; // gaps tighten a little as the trip goes on
+
     this.spawnTimer -= delta;
     if (this.spawnTimer <= 0) {
-      this.spawnTimer = this.theme.spawnInterval + Phaser.Math.Between(-150, 150);
-      const gapHalf = this.theme.gapHalf;
+      this.spawnTimer = this.theme.spawnInterval * (0.9 - pct * 0.15) + Phaser.Math.Between(-150, 150);
+      const gapHalf = Math.max(58, this.theme.gapHalf * ramp * Phaser.Math.FloatBetween(0.84, 1.18));
       const gapY = Phaser.Math.Between(this.H * 0.3, this.H * 0.72);
       this.obstacles.push(this.buildObstacle(gapY, gapHalf));
+    }
+
+    this.hazardTimer -= delta;
+    if (this.hazardTimer <= 0 && pct > 0.12) {
+      this.hazardTimer = Phaser.Math.Between(2600, 4200);
+      this.spawnHazard();
     }
 
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
@@ -152,10 +250,25 @@ class CarpetScene extends Phaser.Scene {
       }
       if (o.x < -60) { o.destroy(); this.obstacles.splice(i, 1); }
     }
-    if (this.invuln > 0) this.invuln -= delta;
+
+    for (let i = this.hazards.length - 1; i >= 0; i--) {
+      const h = this.hazards[i];
+      h.x -= (this.theme.speed * 1.35) * dt;
+      h._phase += dt * 3;
+      h.y = h._bobBase + Math.sin(h._phase) * 18;
+      h.rotation = Math.sin(h._phase) * 0.18;
+      if (this.invuln <= 0 && this.checkHazardHit(h)) this.hitObstacle();
+      if (h.x < -40) { h.destroy(); this.hazards.splice(i, 1); }
+    }
+
+    if (this.invuln > 0) {
+      this.invuln -= delta;
+      this.carpet.alpha = Math.floor(time / 70) % 2 ? 0.4 : 1;
+    } else {
+      this.carpet.alpha = 1;
+    }
 
     this.distance += this.theme.speed * dt;
-    const pct = Phaser.Math.Clamp(this.distance / this.targetDistance, 0, 1);
     this.progressBar.width = Math.max(2, (this.W * 0.6) * pct);
 
     if (this.distance >= this.targetDistance && !this.ended) {

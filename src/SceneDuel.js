@@ -20,12 +20,18 @@ class DuelScene extends Phaser.Scene {
 
     drawSky(this, 0x1a2440, 0x0d1020);
     this.arena = { x0: 60, y0: 90, x1: W - 60, y1: H - 40 };
-    this.add.rectangle((this.arena.x0 + this.arena.x1) / 2, (this.arena.y0 + this.arena.y1) / 2, this.arena.x1 - this.arena.x0, this.arena.y1 - this.arena.y0, 0x2a3a2a).setStrokeStyle(3, 0x4a3a2a);
+    makeCrenellatedWall(this, W / 2, this.arena.y0 - 4, this.arena.x1 - this.arena.x0 + 30, 26, 0x2a2438, 0x4a3a2a).setDepth(2);
+    this.add.rectangle((this.arena.x0 + this.arena.x1) / 2, (this.arena.y0 + this.arena.y1) / 2, this.arena.x1 - this.arena.x0, this.arena.y1 - this.arena.y0, 0x2a3a2a).setStrokeStyle(3, 0x4a3a2a).setDepth(1);
+    makeTree(this, this.arena.x0 - 26, this.arena.y0 + 20, { leaf: 0x2f4a2f, h: 66 }).setDepth(3);
+    makeTree(this, this.arena.x1 + 26, this.arena.y0 + 26, { leaf: 0x2f4a2f, h: 58 }).setDepth(3);
+    makeTree(this, this.arena.x0 - 20, this.arena.y1 - 10, { leaf: 0x2f4a2f, h: 50 }).setDepth(3);
+    makeTree(this, this.arena.x1 + 22, this.arena.y1 - 16, { leaf: 0x2f4a2f, h: 56 }).setDepth(3);
     for (let i = 0; i < 5; i++) {
-      this.add.circle(Phaser.Math.Between(this.arena.x0 + 20, this.arena.x1 - 20), Phaser.Math.Between(this.arena.y0 + 20, this.arena.y1 - 20), 6, 0x6b4a2e, 0.5);
+      this.add.circle(Phaser.Math.Between(this.arena.x0 + 20, this.arena.x1 - 20), Phaser.Math.Between(this.arena.y0 + 20, this.arena.y1 - 20), 6, 0x6b4a2e, 0.5).setDepth(2);
     }
 
-    this.player = makePerson(this, W / 2, H / 2, 0x8e2f2f, 0xdcbf8a, 1);
+    this.player = makePerson(this, W / 2, H / 2, { robe: 0x8e2f2f, skin: 0xdcbf8a, holding: "sword", mood: "stern" });
+    this.player.setDepth(500);
     this.player.hp = 5; this.player.invuln = 0; this.player.facing = { x: 0, y: 1 };
 
     this.hpText = this.add.text(20, 20, "", { fontSize: "16px", color: "#ffffff" }).setDepth(50);
@@ -96,14 +102,16 @@ class DuelScene extends Phaser.Scene {
     else if (side === 1) { x = Phaser.Math.Between(x0, x1); y = y1 - 5; }
     else if (side === 2) { x = x0 + 5; y = Phaser.Math.Between(y0, y1); }
     else { x = x1 - 5; y = Phaser.Math.Between(y0, y1); }
-    const e = makePerson(this, x, y, 0x6a6a72, 0xd9d0c0, 0.85);
+    const e = makePerson(this, x, y, { robe: 0x6a6a72, skin: 0xd9d0c0, scale: 0.85, headwear: "helmet", holding: "spear", mood: "stern" });
+    e.setDepth(Math.round(y));
     e.hp = 2; e.speed = 70; e.kind = "grunt"; e.hitCd = 0; e.dead = false;
     return e;
   }
 
   spawnQahraton() {
     const { x0, y0, x1 } = this.arena;
-    const q = makePerson(this, (x0 + x1) / 2, this.arena.y0 + 10, 0x1a1010, 0xc9c0b0, 1.15);
+    const q = makePerson(this, (x0 + x1) / 2, this.arena.y0 + 10, { robe: 0x1a1010, trim: 0x8e2f2f, skin: 0xc9c0b0, scale: 1.15, beard: true, mood: "grim", holding: "sword" });
+    q.setDepth(Math.round(q.y));
     q.hp = 6; q.speed = 55; q.kind = "boss"; q.hitCd = 0; q.dead = false;
     q.state = "idle"; q.stateT = 800; q.warn = null; q.lungeX = 0; q.lungeY = 0;
     this.enemies.push(q);
@@ -135,6 +143,7 @@ class DuelScene extends Phaser.Scene {
     const spd = this.rolling ? 380 : 150;
     p.x = Phaser.Math.Clamp(p.x + dx * spd * dt, this.arena.x0 + 16, this.arena.x1 - 16);
     p.y = Phaser.Math.Clamp(p.y + dy * spd * dt, this.arena.y0 + 16, this.arena.y1 - 16);
+    p.setDepth(Math.round(p.y));
 
     const rollPressed = Phaser.Input.Keyboard.JustDown(this.keys.shift) || this.touchRoll;
     this.touchRoll = false;
@@ -159,6 +168,7 @@ class DuelScene extends Phaser.Scene {
       }
       if (e.kind === "boss") this.updateBoss(e, delta, dt);
       if (e.hitCd > 0) e.hitCd -= delta;
+      e.setDepth(Math.round(e.y));
 
       const dist = Phaser.Math.Distance.Between(p.x, p.y, e.x, e.y);
       if (dist < 26 && p.invuln <= 0 && e.hitCd <= 0) {
