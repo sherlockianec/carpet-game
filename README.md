@@ -5,7 +5,7 @@ side-character's riddle is a piece of one buried scandal instead of five unrelat
 errands. Built with [Phaser 3](https://phaser.io). No build step, no external services,
 no image files — every visual is drawn from flat shapes at runtime.
 
-**Play time:** roughly 20–35 minutes.
+**Play time:** roughly 25–40 minutes.
 
 ---
 
@@ -50,16 +50,18 @@ python3 -m http.server 8000
 
 | Section | Controls |
 |---|---|
-| **Towns** (finding the right person) | Click/tap anywhere — your character walks over. Wrong person = a one-line dead end. Right person = the real conversation. |
-| **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Thread the gaps between towers. |
-| **Bakery minigame** | Click each loaf before it burns. |
+| **Towns** (finding the right person) | **WASD**/**Arrows** to walk around the bazaar, or click/tap a spot on the ground to walk there. Walk up to someone to talk. Wrong person = a one-line dead end (walk away and try again). Right person = the real conversation. |
+| **Road to the Palace** (Chapter 1, after the village) | **Arrows**/**A-D** to slide side to side and slip through the gaps in the patrols. |
+| **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Thread the gaps between towers — the gaps get tighter and less predictable the further into a trip you get. |
+| **Bakery minigame** | Click each loaf before it burns. The oven runs hotter over time (burns faster) — click the vent icon on the heat gauge, left side, to cool it back down. |
 | **Saddler minigame** | Click a part in the tray, then click the matching outline to place it. |
 | **Kitchen minigame** | Click the ingredient that matches the order before the timer runs out. |
 | **Duel (flashback)** | **WASD**/**Arrows** to move, **Space** to attack, **Shift** to roll (brief invulnerability). Small on-screen buttons appear automatically for touch/mobile. |
-| **Dialogue** | Click anywhere, or press **Space**, to advance a line. |
+| **Dialogue** | Click the **Continue ▸** button (or the dialogue box itself, or press **Space**) to advance a line. |
 
-Nobody permanently fails: minigames simply ask you to try again, and the duel
-restarts on defeat with no penalty. The point is the story, not the difficulty.
+Nobody permanently fails: minigames and the road/carpet trips simply ask you to try
+again, and the duel restarts on defeat with no penalty. The point is the story, not
+the difficulty.
 
 ---
 
@@ -83,6 +85,9 @@ it's the `sequence` array at the bottom of `src/data.js`.
 *father* makes the doomed trip to the palace to ask for the princess's hand, and the
 son only sets out afterward. Here the player character makes that trip directly, so
 there's one continuous controllable protagonist instead of a cutscene-only father.
+The short "Road to the Palace" dodge-the-patrols beat between the village and the
+audience with the King is this version's own addition, giving that trip the same
+"every location is also a small game" treatment as everywhere else.
 
 **Deliberately left unresolved**, same as in the written retelling this game is
 based on: whether Gul knew, that last night, that Qahraton meant it as a goodbye.
@@ -95,16 +100,18 @@ based on: whether Gul knew, that last night, that Qahraton meant it as a goodbye
 index.html          – loads Phaser + every script, in order
 phaser.min.js        – Phaser 3, vendored locally (no CDN dependency)
 src/data.js           – ALL text, colors, and the master chapter order live here
-src/draw.js            – procedural art: domes, minarets, people, the carpet, etc.
-src/DialogueBox.js       – the reusable text-box UI
-src/SceneBookends.js      – Title screen + Ending screen
-src/SceneHallOfSkulls.js   – cold-open hook + the real "hall of skulls" chapter
-src/SceneVillagePalace.js   – opening chapter (carpet gift + the failed proposal)
-src/SceneCarpet.js            – the flying/travel minigame, reused for every trip
-src/SceneTown.js                – the reusable "find the right person" scene
-src/SceneMiniGames.js             – bakery / saddler / kitchen minigames
-src/SceneDuel.js                    – the flashback combat set-piece
-src/main.js                           – Phaser game config, boots TitleScene
+src/draw.js            – procedural art: characters, Timurid buildings, the carpet,
+                          bazaar props, skulls/graves, etc. Everything else calls into this.
+src/DialogueBox.js       – the reusable text-box UI, with a visible Continue button
+src/GridMover.js          – shared free-movement controller (bazaar + road-to-palace)
+src/SceneBookends.js       – Title screen + Ending screen
+src/SceneHallOfSkulls.js    – cold-open hook + the real "hall of skulls" chapter
+src/SceneVillagePalace.js    – village → road-to-palace minigame → palace audience
+src/SceneCarpet.js             – the flying/travel minigame, reused for every trip
+src/SceneTown.js                 – the reusable bazaar "find the right person" scene
+src/SceneMiniGames.js              – bakery / saddler / kitchen minigames
+src/SceneDuel.js                     – the flashback combat set-piece
+src/main.js                            – Phaser game config, boots TitleScene
 ```
 
 Everything is data-driven through `STORY` in `data.js`. To edit dialogue, retune
@@ -118,9 +125,17 @@ touch that one file — the scene code just reads whatever is there.
 - No save/resume — a play session is meant to be one sitting. (Browser storage APIs
   were deliberately avoided so this also works safely if you ever paste the code
   into a Claude-style in-chat preview, where `localStorage` is disabled.)
-- Art is intentionally flat/geometric, closer to *Alto's Adventure* than an
-  illustrated game. Swapping in real sprites later just means replacing the
-  `make*` functions in `draw.js` with `scene.add.image(...)` calls against loaded
-  textures — the rest of the code doesn't care how those objects were built.
+- Art is illustrated vector built entirely from Phaser Graphics shapes (thick
+  outlines, layered silhouettes, no image files) rather than hand-painted sprites —
+  closer to a stylized paper-cutout look than a fully painted illustration. Swapping
+  in real artwork later just means replacing the `make*` functions in `draw.js` with
+  `scene.add.image(...)` calls against loaded textures — the rest of the code
+  doesn't care how those objects were built.
+- The bazaar's environment props (stalls, trees, rugs, rocks) are scattered
+  procedurally each time a town loads, so the layout varies slightly between visits —
+  this is intentional (it's what makes the space feel less like a fixed diorama), but
+  it does mean prop placement isn't hand-composed.
 - Combat numbers (health, damage, speed) are all top-of-file constants in
-  `SceneDuel.js` if the fight feels too easy or too hard.
+  `SceneDuel.js` if the fight feels too easy or too hard. Carpet and road-to-palace
+  difficulty (gap size, speed, trip length) live in `STORY.carpetThemes` and
+  `STORY.routeMap` in `data.js`.
