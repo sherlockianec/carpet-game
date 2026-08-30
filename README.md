@@ -50,7 +50,7 @@ python3 -m http.server 8000
 
 | Section | Controls |
 |---|---|
-| **Towns** (finding the right person) | **WASD**/**Arrows** to walk around the bazaar, or click/tap a spot on the ground to walk there. Walk up to someone to talk. Wrong person = a one-line dead end (walk away and try again). Right person = the real conversation. |
+| **Village** (opening) / **Towns** (finding the right person) | **WASD**/**Arrows** to walk around, or click/tap a spot on the ground to walk there. Walk up to someone to talk. Wrong person = a one-line dead end (walk away and try again). Right person = the real conversation. |
 | **Road to the Palace** (Chapter 1, after the village) | **Arrows**/**A-D** to slide side to side and slip through the gaps in the patrols. |
 | **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Thread the gaps between towers — the gaps get tighter and less predictable the further into a trip you get. |
 | **Bakery minigame** | Click each loaf before it burns. The oven runs hotter over time (burns faster) — click the vent icon on the heat gauge, left side, to cool it back down. |

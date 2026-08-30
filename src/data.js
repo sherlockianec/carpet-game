@@ -11,10 +11,10 @@ function L(speaker, text) {
 const STORY = {
 
   oldMan: [
-    L("???", "You have a sharp mind, boy - sharper than your birth should allow."),
-    L("???", "Take this rug. Sit upon it and speak the old words, and it will carry you anywhere in the blink of an eye. Fold it and speak them differently, and it becomes a plain handkerchief."),
-    L("???", "When the time comes to marry, ask for no one but the King's daughter. Refuse every other match, whatever your parents say."),
-    L("???", "Go well. We will not meet again.")
+    L("Old Traveler", "You have a sharp mind, boy - sharper than your birth should allow."),
+    L("Old Traveler", "Take this rug. Sit upon it and speak the old words, and it will carry you anywhere in the blink of an eye. Fold it and speak them differently, and it becomes a plain handkerchief."),
+    L("Old Traveler", "When the time comes to marry, ask for no one but the King's daughter. Refuse every other match, whatever your parents say."),
+    L("Old Traveler", "Go well. We will not meet again.")
   ],
 
   palace: [

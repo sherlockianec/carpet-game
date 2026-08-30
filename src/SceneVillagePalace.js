@@ -37,33 +37,88 @@ class VillagePalaceScene extends Phaser.Scene {
     makeMinaret(this, W * 0.68, horizonY, 58, 0xc9a24b, 0xd9a441).setDepth(1);
     drawGround(this, 0x8a6a4a, H - horizonY, { flecks: 22 });
 
-    // background villagers going about their day, plus a little clutter -
-    // all kept above the dialogue panel (top ~398px) so nobody vanishes
-    // behind it once the old traveler starts speaking.
-    const bg1 = makePerson(this, W * 0.14, H * 0.60, { robe: 0x7a5a3a, skin: 0xcfc3a8, headwear: "doppi", holding: "basket" });
-    bg1.setDepth(Math.round(bg1.y));
-    const bg2 = makePerson(this, W * 0.88, H * 0.56, { robe: 0x5a7a5a, skin: 0xdcbf8a, headwear: "scarf", scale: 0.86, facing: -1 });
-    bg2.setDepth(Math.round(bg2.y));
-    const bg3 = makePerson(this, W * 0.80, H * 0.62, { robe: 0x8a6a9a, skin: 0xd9c9a8, scale: 0.8 });
-    bg3.setDepth(Math.round(bg3.y));
-    [bg1, bg2, bg3].forEach((p, i) => addBreathing(this, p.bodyGfx, { delay: i * 220 }));
+    drawClueHUD(this);
+    this.dbox = new DialogueBox(this);
+    this.busy = false;
+    this.spotObjs = [];
+
+    // background villagers - a little village-life color. Walking up to
+    // one of these gives a short flavor line; walking up to the old
+    // traveler is what actually starts the real conversation.
+    const villagers = [
+      { x: W * 0.14, y: H * 0.60, robe: 0x7a5a3a, skin: 0xcfc3a8, headwear: "doppi", holding: "basket", line: "Mind the well on your way past - the rope's gone thin again." },
+      { x: W * 0.88, y: H * 0.56, robe: 0x5a7a5a, skin: 0xdcbf8a, headwear: "scarf", scale: 0.86, facing: -1, line: "Haven't seen you around much. Off somewhere?" },
+      { x: W * 0.80, y: H * 0.62, robe: 0x8a6a9a, skin: 0xd9c9a8, scale: 0.8, line: "Sharp eyes, that one. Everyone says so." }
+    ];
+    villagers.forEach(v => {
+      const p = makePerson(this, v.x, v.y, { robe: v.robe, skin: v.skin, headwear: v.headwear || "none", scale: v.scale || 1, facing: v.facing || 1, holding: v.holding || "none" });
+      p.setDepth(Math.round(v.y));
+      addBreathing(this, p.bodyGfx, { delay: Math.random() * 400 });
+      p._spot = { name: "Villager", miss: [v.line] };
+      p._triggered = false;
+      this.spotObjs.push(p);
+      makeClickable(p, 42, 76, () => { if (!this.dbox.visible && !this.busy) this.mover.clickTo(v.x, v.y); });
+    });
+
     makeTree(this, W * 0.24, H * 0.66, { h: 60 }).setDepth(Math.round(H * 0.66) - 1);
     makeRug(this, W * 0.62, H * 0.70, { base: 0x8e2f2f, w: 48, h: 26 }).setDepth(Math.round(H * 0.70) - 1);
     makeRock(this, W * 0.06, H * 0.72, {}).setDepth(Math.round(H * 0.72) - 1);
 
-    this.player = makePerson(this, W * 0.35, H * 0.64, { robe: 0x1f6f6f, skin: 0xdcbf8a });
-    this.player.setDepth(Math.round(this.player.y));
-    const oldMan = makePerson(this, W * 0.58, H * 0.66, { robe: 0x5a5040, skin: 0xcfc3a8, headwear: "kalpak", beard: true, facing: -1 });
-    oldMan.setDepth(Math.round(oldMan.y));
-    addBreathing(this, this.player.bodyGfx);
+    const omX = W * 0.58, omY = H * 0.66;
+    const oldMan = makePerson(this, omX, omY, { robe: 0x5a5040, skin: 0xcfc3a8, headwear: "kalpak", beard: true, facing: -1 });
+    oldMan.setDepth(Math.round(omY));
     addBreathing(this, oldMan.bodyGfx, { delay: 250 });
+    oldMan._spot = { name: "Old Traveler", target: true };
+    oldMan._triggered = false;
+    this.spotObjs.push(oldMan);
+    makeClickable(oldMan, 42, 76, () => { if (!this.dbox.visible && !this.busy) this.mover.clickTo(omX, omY); });
 
-    drawClueHUD(this);
-    const dbox = new DialogueBox(this);
-    dbox.show(STORY.oldMan, () => {
-      GameState.hasCarpet = true;
-      this.time.delayedCall(200, () => this.scene.restart({ phase: 1 }));
+    this.player = makePerson(this, W * 0.30, H * 0.58, { robe: 0x1f6f6f, skin: 0xdcbf8a });
+    this.player.setDepth(Math.round(this.player.y));
+    this._playerBaseScale = this.player.scaleY;
+    addBreathing(this, this.player.bodyGfx);
+
+    this.villageBounds = { x0: 40, y0: horizonY + 20, x1: W - 40, y1: H - 60 };
+    this.mover = new GridMover(this, this.player, { speed: 148, bounds: this.villageBounds });
+
+    this.add.text(W / 2, H - 14, "WASD / arrows to walk - find the old traveler and talk to him.", { fontSize: "13px", color: "#ffffffaa" })
+      .setOrigin(0.5).setDepth(900);
+
+    this.input.on("pointerdown", p => {
+      if (this.dbox.visible || this.busy) return;
+      if (this.input.hitTestPointer(p).length > 0) return;
+      this.mover.clickTo(p.worldX, p.worldY);
     });
+  }
+
+  updateVillage(time, delta) {
+    if (!this.mover || this.dbox.visible || this.busy) return;
+    const res = this.mover.update(delta);
+    if (this.player.bodyGfx) this.player.bodyGfx.y = res.moving ? Math.sin(time / 85) * 2.2 : 0;
+    this.player.scaleX = this._playerBaseScale * (this.mover.facing < 0 ? -1 : 1);
+
+    this.spotObjs.forEach(obj => {
+      const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, obj.x, obj.y);
+      if (d < 42) {
+        if (!obj._triggered) { obj._triggered = true; this.triggerVillager(obj._spot); }
+      } else {
+        obj._triggered = false;
+      }
+    });
+  }
+
+  triggerVillager(spot) {
+    this.busy = true;
+    this.mover.stop();
+    if (spot.target) {
+      this.dbox.show(STORY.oldMan, () => {
+        GameState.hasCarpet = true;
+        this.time.delayedCall(200, () => this.scene.restart({ phase: 1 }));
+      });
+    } else {
+      const line = Phaser.Utils.Array.GetRandom(spot.miss);
+      this.dbox.show([{ speaker: spot.name, text: line }], () => { this.busy = false; });
+    }
   }
 
   // ---------------------------------------------------------- phase 1
@@ -289,6 +344,7 @@ class VillagePalaceScene extends Phaser.Scene {
   }
 
   update(time, delta) {
-    if (this.phase === 1) this.updateRouteMap(time, delta);
+    if (this.phase === 0) this.updateVillage(time, delta);
+    else if (this.phase === 1) this.updateRouteMap(time, delta);
   }
 }
