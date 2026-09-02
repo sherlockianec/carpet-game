@@ -4,9 +4,20 @@
 // STORY.carpetThemes (colors + speed + gap size + obstacle
 // silhouette + hazard type all change). Physics (lift/gravity/
 // margins) are unchanged from the original tuning.
+//
+// Each trip is a FIXED, seeded sequence of obstacles (not endless
+// random spawning): the same theme always lays out the same
+// obstacles in the same order, on the first attempt and on every
+// retry, and the trip ends the moment the last one is cleared -
+// not at an arbitrary distance cutoff that may or may not line up
+// with what's on screen. Level 1 (desert) never spawns the
+// bird/arrow hazard; it's introduced from the second trip on.
+//
 // data.quick === true renders a short, non-interactive flyover
 // used for the faster reverse-journey transitions.
 // ============================================================
+
+const CARPET_THEME_ORDER = ["desert", "wind", "dusk", "day2", "storm"];
 
 class CarpetScene extends Phaser.Scene {
   constructor() { super("CarpetScene"); }
@@ -15,6 +26,30 @@ class CarpetScene extends Phaser.Scene {
     this.themeKey = data.theme || "desert";
     this.toLabel = data.toLabel || "";
     this.quick = !!data.quick;
+  }
+
+  // A fixed, reproducible obstacle layout for this theme: same shape on
+  // the first attempt and every retry. Gaps tighten across the trip;
+  // hazards (only from the 2nd theme onward) get more frequent toward
+  // the end of the trip too.
+  buildSequence(theme) {
+    const themeIndex = CARPET_THEME_ORDER.indexOf(this.themeKey);
+    const rand = mulberry32(hashSeed("carpet-" + this.themeKey));
+    const count = Math.max(3, Math.round(theme.distance / theme.spacing));
+    const seq = [];
+    let lastFrac = 0.5;
+    for (let i = 0; i < count; i++) {
+      const t = count <= 1 ? 0 : i / (count - 1);
+      const ramp = 1.16 - 0.32 * t;
+      const jitter = 0.9 + rand() * 0.22;
+      const gapHalf = Math.max(56, theme.gapHalf * ramp * jitter);
+      let frac = 0.26 + rand() * 0.48;
+      if (Math.abs(frac - lastFrac) < 0.10) frac = frac > lastFrac ? Math.min(0.76, frac + 0.16) : Math.max(0.24, frac - 0.16);
+      lastFrac = frac;
+      const hazard = themeIndex > 0 && i > 0 && rand() < (0.14 + t * 0.28);
+      seq.push({ gapYFrac: frac, gapHalf, hazard });
+    }
+    return seq;
   }
 
   create() {
@@ -48,12 +83,14 @@ class CarpetScene extends Phaser.Scene {
     this.lives = 3;
     this.invuln = 0;
     this.distance = 0;
-    this.targetDistance = theme.distance;
+    this.ended = false;
+
+    this.sequence = this.buildSequence(theme);
+    this.totalDistance = this.sequence.length * theme.spacing;
+    this.spawnIndex = 0;
+    this.nextSpawnDistance = theme.spacing * 0.6; // small lead-in before the first obstacle
     this.obstacles = [];
     this.hazards = [];
-    this.spawnTimer = 700;
-    this.hazardTimer = 2200;
-    this.ended = false;
 
     this.thrusting = false;
     this.input.on("pointerdown", () => this.thrusting = true);
@@ -64,14 +101,12 @@ class CarpetScene extends Phaser.Scene {
     this.progressBg = this.add.rectangle(W / 2, 22, W * 0.6, 10, 0x000000, 0.35).setScrollFactor(0).setDepth(900);
     this.progressBar = this.add.rectangle(W * 0.2, 22, 2, 10, theme.orb).setOrigin(0, 0.5).setScrollFactor(0).setDepth(901);
     this.livesText = this.add.text(20, 12, "\u2665 \u2665 \u2665", { fontSize: "18px", color: "#ffefc4" }).setScrollFactor(0).setDepth(900);
+    this.obstacleCountText = this.add.text(W - 20, 12, "0 / " + this.sequence.length, { fontSize: "13px", color: "#ffefc4" })
+      .setOrigin(1, 0).setScrollFactor(0).setDepth(900);
     this.add.text(W / 2, H - 14, "hold up / SPACE / click & hold to rise", { fontSize: "12px", color: "#ffffffaa" }).setOrigin(0.5).setScrollFactor(0).setDepth(900);
   }
 
   // ---- themed obstacle silhouettes -------------------------------------
-  // Each pillar body is a plain rect (matches original collision math
-  // exactly - halfW 20 either side of x) topped with a themed cap so the
-  // player is dodging minarets/domes/canyon spires/wind-towers/storm
-  // crags instead of bare rectangles.
   drawCap(g, dir, kind, color, accent) {
     // dir: +1 = cap sits on top of a bottom-pillar, pointing up.
     //      -1 = cap hangs below a top-pillar, pointing down.
@@ -125,7 +160,6 @@ class CarpetScene extends Phaser.Scene {
     g.lineStyle(1.6, INK, 0.35);
     g.strokeRect(-20, 0, 40, topH);
     g.strokeRect(-20, botY, 40, botH);
-    // themed caps at the gap-facing ends
     const capTop = this.add.graphics();
     capTop.setPosition(0, topH);
     this.drawCap(capTop, -1, kind, this.theme.obstacleColor, this.theme.obstacleAccent || 0xd9a441);
@@ -138,11 +172,8 @@ class CarpetScene extends Phaser.Scene {
     return container;
   }
 
-  spawnHazard() {
-    // a small bird/arrow that drifts through the gap band independent of
-    // pillar placement - a second thing to track, not just a bigger wall.
+  spawnHazard(y) {
     const theme = this.theme;
-    const y = Phaser.Math.Between(this.H * 0.22, this.H * 0.78);
     const g = this.add.graphics();
     if (theme.hazard === "arrow") {
       g.fillStyle(0xcfd6da, 1);
@@ -155,11 +186,28 @@ class CarpetScene extends Phaser.Scene {
       g.fillTriangle(-10, 0, 0, -5, 0, 5);
       g.fillTriangle(10, 0, 0, -5, 0, 5);
     }
-    const container = this.add.container(this.W + 30, y, [g]);
+    const container = this.add.container(this.W + 90, y, [g]);
     container.setDepth(260);
     container._bobBase = y;
     container._phase = Math.random() * Math.PI * 2;
     this.hazards.push(container);
+  }
+
+  // Spawn the next fixed entry from this.sequence: the pillar pair, and -
+  // offset in height so it's a genuinely separate thing to track - its
+  // paired hazard, if this entry has one.
+  spawnNext() {
+    const entry = this.sequence[this.spawnIndex];
+    const gapY = this.H * entry.gapYFrac;
+    this.obstacles.push(this.buildObstacle(gapY, entry.gapHalf));
+    if (entry.hazard) {
+      const side = Phaser.Math.Between(0, 1) === 0 ? -1 : 1;
+      const hy = Phaser.Math.Clamp(gapY + side * Phaser.Math.Between(60, 100), 40, this.H - 40);
+      this.spawnHazard(hy);
+    }
+    this.spawnIndex++;
+    this.nextSpawnDistance += this.theme.spacing;
+    if (this.obstacleCountText) this.obstacleCountText.setText(this.spawnIndex + " / " + this.sequence.length);
   }
 
   checkHit(o) {
@@ -225,21 +273,10 @@ class CarpetScene extends Phaser.Scene {
     this.nearLayer.x -= this.theme.speed * 0.7 * dt;
     if (this.nearLayer.x <= -this.W) this.nearLayer.x += this.W;
 
-    const pct = Phaser.Math.Clamp(this.distance / this.targetDistance, 0, 1);
-    const ramp = 1 - pct * 0.22; // gaps tighten a little as the trip goes on
+    this.distance += this.theme.speed * dt;
 
-    this.spawnTimer -= delta;
-    if (this.spawnTimer <= 0) {
-      this.spawnTimer = this.theme.spawnInterval * (0.9 - pct * 0.15) + Phaser.Math.Between(-150, 150);
-      const gapHalf = Math.max(58, this.theme.gapHalf * ramp * Phaser.Math.FloatBetween(0.84, 1.18));
-      const gapY = Phaser.Math.Between(this.H * 0.3, this.H * 0.72);
-      this.obstacles.push(this.buildObstacle(gapY, gapHalf));
-    }
-
-    this.hazardTimer -= delta;
-    if (this.hazardTimer <= 0 && pct > 0.12) {
-      this.hazardTimer = Phaser.Math.Between(2600, 4200);
-      this.spawnHazard();
+    if (this.spawnIndex < this.sequence.length && this.distance >= this.nextSpawnDistance) {
+      this.spawnNext();
     }
 
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
@@ -268,10 +305,13 @@ class CarpetScene extends Phaser.Scene {
       this.carpet.alpha = 1;
     }
 
-    this.distance += this.theme.speed * dt;
+    const pct = Phaser.Math.Clamp(this.distance / this.totalDistance, 0, 1);
     this.progressBar.width = Math.max(2, (this.W * 0.6) * pct);
 
-    if (this.distance >= this.targetDistance && !this.ended) {
+    // The trip only ends once every fixed obstacle has been spawned AND
+    // has actually scrolled clear of the screen - not at an arbitrary
+    // distance cutoff that might land mid-obstacle.
+    if (!this.ended && this.spawnIndex >= this.sequence.length && this.obstacles.length === 0 && this.hazards.length === 0) {
       this.succeed();
     }
   }

@@ -5,7 +5,7 @@ side-character's riddle is a piece of one buried scandal instead of five unrelat
 errands. Built with [Phaser 3](https://phaser.io). No build step, no external services,
 no image files — every visual is drawn from flat shapes at runtime.
 
-**Play time:** roughly 25–40 minutes.
+**Play time:** roughly 45–65 minutes.
 
 ---
 
@@ -52,16 +52,17 @@ python3 -m http.server 8000
 |---|---|
 | **Village** (opening) / **Towns** (finding the right person) | **WASD**/**Arrows** to walk around, or click/tap a spot on the ground to walk there. Walk up to someone to talk. Wrong person = a one-line dead end (walk away and try again). Right person = the real conversation. |
 | **Road to the Palace** (Chapter 1, after the village) | **Arrows**/**A-D** to slide side to side and slip through the gaps in the patrols. |
-| **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Thread the gaps between towers — the gaps get tighter and less predictable the further into a trip you get. |
-| **Bakery minigame** | Click each loaf before it burns. The oven runs hotter over time (burns faster) — click the vent icon on the heat gauge, left side, to cool it back down. |
-| **Saddler minigame** | Click a part in the tray, then click the matching outline to place it. |
-| **Kitchen minigame** | Click the ingredient that matches the order before the timer runs out. |
+| **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Each trip is a fixed, hand-scaled course (same layout every retry) that gets both longer and tighter as the story goes on; a second thing to dodge (birds, then arrows) shows up from the second trip onward. A trip only ends once its last obstacle is behind you — never mid-obstacle. |
+| **Bakery minigame** | 50 loaves in three escalating paces. Click each loaf before it burns - but a catch only counts if the oven's heat is inside the marked band when you take it. Heat drifts down on its own; click the flame to warm it, the snowflake to cool it. Too many ruined loaves in one pace (more than 5) or across the whole bake (more than 10) and the batch starts over. |
+| **Saddler minigame** | A real 24+ piece saddle, against a minute-long clock. Click a piece in the tray, then click its matching outline. A wrong guess costs 2 seconds. Run out of time and the tray reshuffles for another go. |
+| **Kitchen minigame** | 20 rounds pulling from a pool of 20 ingredients. The counter starts with 6 options and grows by one (keeping most of what was there) up to 10, so the board is always a little different, never a clean reset. |
 | **Duel (flashback)** | **WASD**/**Arrows** to move, **Space** to attack, **Shift** to roll (brief invulnerability). Small on-screen buttons appear automatically for touch/mobile. |
 | **Dialogue** | Click the **Continue ▸** button (or the dialogue box itself, or press **Space**) to advance a line. |
 
-Nobody permanently fails: minigames and the road/carpet trips simply ask you to try
-again, and the duel restarts on defeat with no penalty. The point is the story, not
-the difficulty.
+Nobody is permanently stuck: falling short just means trying that section again from
+its start (a full retry, not a soft checkpoint - the bakery's 50 loaves and the
+saddler's whole tray reset together), and the duel restarts on defeat with no
+penalty. The point is the story, not a punishing difficulty curve.
 
 ---
 
@@ -136,6 +137,11 @@ touch that one file — the scene code just reads whatever is there.
   this is intentional (it's what makes the space feel less like a fixed diorama), but
   it does mean prop placement isn't hand-composed.
 - Combat numbers (health, damage, speed) are all top-of-file constants in
-  `SceneDuel.js` if the fight feels too easy or too hard. Carpet and road-to-palace
-  difficulty (gap size, speed, trip length) live in `STORY.carpetThemes` and
-  `STORY.routeMap` in `data.js`.
+  `SceneDuel.js` if the fight feels too easy or too hard. Carpet trip length/gap
+  size live in `STORY.carpetThemes` in `data.js`; each trip's actual obstacle
+  layout is generated once (seeded, so it's identical on every retry) by
+  `buildSequence()` in `SceneCarpet.js`. The road-to-palace works the same way via
+  `buildRoadSequence()` in `SceneVillagePalace.js`. Bakery pacing/mistake limits are
+  the `BAKERY_TIERS` constant at the top of `SceneMiniGames.js`; the saddle's parts
+  and layout are `SADDLE_PARTS` in the same file; the kitchen's ingredient pool and
+  per-tier counts are `KITCHEN_POOL` / `KITCHEN_TIER_SIZES`.

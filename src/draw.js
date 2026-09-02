@@ -146,6 +146,24 @@ function tileBand(g, x, y, w, colorA, colorB, cell) {
   }
 }
 
+// Small deterministic PRNG so "random-looking" layouts (carpet obstacle
+// courses, the road-to-palace patrols) can be regenerated identically on
+// every retry instead of reshuffling each attempt.
+function hashSeed(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let s = seed >>> 0;
+  return function () {
+    s = (s + 0x6D2B79F5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // ---------- character system ----------
 //
 // makePerson(scene, x, y, opts) — opts:

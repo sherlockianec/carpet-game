@@ -170,16 +170,35 @@ class VillagePalaceScene extends Phaser.Scene {
     this.lives = 3;
     this.livesText = this.add.text(20, 16, "\u2665 \u2665 \u2665", { fontSize: "18px", color: "#8e2f2f" }).setDepth(900);
     this.traveled = 0;
-    this.distance = rm.distance;
     this.speed = rm.speed;
     this.progressBg = this.add.rectangle(W / 2, 50, W - 320, 8, 0x00000030).setDepth(900);
     this.progressBar = this.add.rectangle(W / 2 - (W - 320) / 2, 50, 4, 8, 0xd9a441).setOrigin(0, 0.5).setDepth(901);
 
     this.topY = topY; this.botY = botY;
     this.obstacles = [];
-    this.spawnTimer = 900;
+    this.sequence = this.buildRoadSequence(rm);
+    this.totalRoadDistance = this.sequence.length * 300;
+    this.spawnIndex = 0;
+    this.nextSpawnDistance = 260;
     this.invuln = 0;
     this.locked = false;
+  }
+
+  buildRoadSequence(rm) {
+    const rand = mulberry32(hashSeed("routemap-v1"));
+    const spacing = 300;
+    const count = Math.max(3, Math.round(rm.distance / spacing));
+    const seq = [];
+    let lastX = 0.5;
+    for (let i = 0; i < count; i++) {
+      const t = count <= 1 ? 0 : i / (count - 1);
+      const gapHalf = Math.max(46, rm.gapHalf * (1.12 - 0.28 * t) * (0.9 + rand() * 0.2));
+      let xf = 0.2 + rand() * 0.6;
+      if (Math.abs(xf - lastX) < 0.14) xf = xf > lastX ? Math.min(0.82, xf + 0.2) : Math.max(0.18, xf - 0.2);
+      lastX = xf;
+      seq.push({ xf, gapHalf });
+    }
+    return seq;
   }
 
   drawMiniatureFrame() {
@@ -220,15 +239,14 @@ class VillagePalaceScene extends Phaser.Scene {
     return c;
   }
 
-  spawnObstacle() {
-    const rm = STORY.routeMap;
-    const pct = Phaser.Math.Clamp(this.traveled / this.distance, 0, 1);
-    const gapHalf = Math.max(48, rm.gapHalf * (1 - pct * 0.2) * Phaser.Math.FloatBetween(0.85, 1.18));
-    const margin = 42;
-    const gapX = Phaser.Math.Between(this.roadBounds.x0 + margin, this.roadBounds.x1 - margin);
-    const left = this.makeBarrier(this.roadBounds.x0 - 26, gapX - gapHalf);
-    const right = this.makeBarrier(gapX + gapHalf, this.roadBounds.x1 + 26);
-    this.obstacles.push({ y: this.topY - 24, gapX, gapHalf, left, right });
+  spawnNext() {
+    const entry = this.sequence[this.spawnIndex];
+    const gapX = this.roadBounds.x0 + (this.roadBounds.x1 - this.roadBounds.x0) * entry.xf;
+    const left = this.makeBarrier(this.roadBounds.x0 - 26, gapX - entry.gapHalf);
+    const right = this.makeBarrier(gapX + entry.gapHalf, this.roadBounds.x1 + 26);
+    this.obstacles.push({ y: this.topY - 24, gapX, gapHalf: entry.gapHalf, left, right });
+    this.spawnIndex++;
+    this.nextSpawnDistance += 300;
   }
 
   hit() {
@@ -262,7 +280,7 @@ class VillagePalaceScene extends Phaser.Scene {
     if (this.player.bodyGfx) this.player.bodyGfx.y = dx !== 0 ? Math.sin(time / 80) * 2 : 0;
 
     this.traveled += this.speed * dt;
-    const pct = Math.min(1, this.traveled / this.distance);
+    const pct = Math.min(1, this.traveled / this.totalRoadDistance);
     this.progressBar.width = Math.max(4, (this.scale.width - 320) * pct);
 
     if (this.invuln > 0) {
@@ -272,10 +290,8 @@ class VillagePalaceScene extends Phaser.Scene {
       this.player.alpha = 1;
     }
 
-    this.spawnTimer -= delta;
-    if (this.spawnTimer <= 0) {
-      this.spawnTimer = STORY.routeMap.spawnInterval * (0.92 - pct * 0.18) + Phaser.Math.Between(-120, 120);
-      this.spawnObstacle();
+    if (this.spawnIndex < this.sequence.length && this.traveled >= this.nextSpawnDistance) {
+      this.spawnNext();
     }
 
     for (let i = this.obstacles.length - 1; i >= 0; i--) {
@@ -289,7 +305,9 @@ class VillagePalaceScene extends Phaser.Scene {
       if (o.y > this.botY + 50) { o.left.destroy(); o.right.destroy(); this.obstacles.splice(i, 1); }
     }
 
-    if (this.traveled >= this.distance) this.finish();
+    // Ends once every fixed barrier has been spawned AND scrolled clear -
+    // not at an arbitrary distance cutoff that might land mid-obstacle.
+    if (!this.locked && this.spawnIndex >= this.sequence.length && this.obstacles.length === 0) this.finish();
   }
 
   // ---------------------------------------------------------- phase 2
