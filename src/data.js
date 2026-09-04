@@ -227,11 +227,11 @@ const STORY = {
   ],
 
   carpetThemes: {
-    desert: { skyTop: 0xf2c98a, skyBottom: 0xd9873f, orb: 0xfff3d0, farColor: 0xb5794a, nearColor: 0x8a5a34, ground: 0xc9a24b, obstacleColor: 0x8a5a34, obstacleAccent: 0xd9a441, kind: "minaret", hazard: "bird", speed: 190, gapHalf: 100, spacing: 520, distance: 2200 },
-    wind:   { skyTop: 0xcfe0e8, skyBottom: 0x6a90a0, orb: 0xffffff, farColor: 0x5a7a88, nearColor: 0x3a5a68, ground: 0x7a8a70, obstacleColor: 0x4a6a58, obstacleAccent: 0xdff0ea, kind: "wind", hazard: "bird", speed: 210, gapHalf: 92, spacing: 480, distance: 3400 },
-    dusk:   { skyTop: 0xe07a4a, skyBottom: 0x3a2a55, orb: 0xffd27a, farColor: 0x5a3a5a, nearColor: 0x3a2645, ground: 0x6a4a5a, obstacleColor: 0x4a2f4a, obstacleAccent: 0xd9a441, kind: "dome", hazard: "bird", speed: 222, gapHalf: 86, spacing: 450, distance: 5000 },
-    day2:   { skyTop: 0xdcd0a0, skyBottom: 0xb98a55, orb: 0xfff3d0, farColor: 0x9a7550, nearColor: 0x6b4a2e, ground: 0x8a6a4a, obstacleColor: 0x6b4a2e, obstacleAccent: 0xc9a24b, kind: "canyon", hazard: "arrow", speed: 235, gapHalf: 80, spacing: 420, distance: 6800 },
-    storm:  { skyTop: 0x3a3a4a, skyBottom: 0x14141e, orb: 0x8a8a9a, farColor: 0x2a2a38, nearColor: 0x1a1a24, ground: 0x201c2a, obstacleColor: 0x2a2a38, obstacleAccent: 0x5a5a68, kind: "storm", hazard: "arrow", speed: 250, gapHalf: 74, spacing: 390, distance: 9000 }
+    desert: { skyTop: 0xf2c98a, skyBottom: 0xd9873f, orb: 0xfff3d0, farColor: 0xb5794a, nearColor: 0x8a5a34, ground: 0xc9a24b, obstacleColor: 0x8a5a34, obstacleAccent: 0xd9a441, kind: "minaret", hazard: "bird", speed: 190, gapHalf: 100, spacing: 300, distance: 2200 },
+    wind:   { skyTop: 0xcfe0e8, skyBottom: 0x6a90a0, orb: 0xffffff, farColor: 0x5a7a88, nearColor: 0x3a5a68, ground: 0x7a8a70, obstacleColor: 0x4a6a58, obstacleAccent: 0xdff0ea, kind: "wind", hazard: "bird", speed: 210, gapHalf: 92, spacing: 270, distance: 3400 },
+    dusk:   { skyTop: 0xe07a4a, skyBottom: 0x3a2a55, orb: 0xffd27a, farColor: 0x5a3a5a, nearColor: 0x3a2645, ground: 0x6a4a5a, obstacleColor: 0x4a2f4a, obstacleAccent: 0xd9a441, kind: "dome", hazard: "bird", speed: 222, gapHalf: 86, spacing: 245, distance: 5000 },
+    day2:   { skyTop: 0xdcd0a0, skyBottom: 0xb98a55, orb: 0xfff3d0, farColor: 0x9a7550, nearColor: 0x6b4a2e, ground: 0x8a6a4a, obstacleColor: 0x6b4a2e, obstacleAccent: 0xc9a24b, kind: "canyon", hazard: "arrow", speed: 235, gapHalf: 80, spacing: 225, distance: 6800 },
+    storm:  { skyTop: 0x3a3a4a, skyBottom: 0x14141e, orb: 0x8a8a9a, farColor: 0x2a2a38, nearColor: 0x1a1a24, ground: 0x201c2a, obstacleColor: 0x2a2a38, obstacleAccent: 0x5a5a68, kind: "storm", hazard: "arrow", speed: 250, gapHalf: 74, spacing: 205, distance: 9000 }
   },
 
   sequence: [

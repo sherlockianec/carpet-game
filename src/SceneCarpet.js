@@ -44,7 +44,9 @@ class CarpetScene extends Phaser.Scene {
       const jitter = 0.9 + rand() * 0.22;
       const gapHalf = Math.max(56, theme.gapHalf * ramp * jitter);
       let frac = 0.26 + rand() * 0.48;
-      if (Math.abs(frac - lastFrac) < 0.10) frac = frac > lastFrac ? Math.min(0.76, frac + 0.16) : Math.max(0.24, frac - 0.16);
+      const maxSwing = 0.34;
+      if (Math.abs(frac - lastFrac) > maxSwing) frac = frac > lastFrac ? lastFrac + maxSwing : lastFrac - maxSwing;
+      frac = Phaser.Math.Clamp(frac, 0.22, 0.78);
       lastFrac = frac;
       const hazard = themeIndex > 0 && i > 0 && rand() < (0.14 + t * 0.28);
       seq.push({ gapYFrac: frac, gapHalf, hazard });

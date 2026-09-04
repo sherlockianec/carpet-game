@@ -194,7 +194,9 @@ class VillagePalaceScene extends Phaser.Scene {
       const t = count <= 1 ? 0 : i / (count - 1);
       const gapHalf = Math.max(46, rm.gapHalf * (1.12 - 0.28 * t) * (0.9 + rand() * 0.2));
       let xf = 0.2 + rand() * 0.6;
-      if (Math.abs(xf - lastX) < 0.14) xf = xf > lastX ? Math.min(0.82, xf + 0.2) : Math.max(0.18, xf - 0.2);
+      const maxSwing = 0.36;
+      if (Math.abs(xf - lastX) > maxSwing) xf = xf > lastX ? lastX + maxSwing : lastX - maxSwing;
+      xf = Phaser.Math.Clamp(xf, 0.18, 0.82);
       lastX = xf;
       seq.push({ xf, gapHalf });
     }

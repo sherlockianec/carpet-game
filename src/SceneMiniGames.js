@@ -50,7 +50,7 @@ class BakeryGameScene extends Phaser.Scene {
 
     this.buildHeatGauge();
 
-    this.add.text(W / 2, H - 14, "Click each loaf before it burns - stoke or vent to keep heat in the marked band.", { fontSize: "12px", color: "#3a2a1a" })
+    this.add.text(W / 2, H - 14, "Click each loaf before it burns. \u2191/\u2193 (or the flame/snowflake) keep heat in the marked band.", { fontSize: "12px", color: "#3a2a1a" })
       .setOrigin(0.5).setDepth(900);
     this.scoreText = this.add.text(W / 2, 52, "", { fontSize: "13px", color: "#3a2a1a", fontStyle: "bold" }).setOrigin(0.5).setDepth(900);
     this.updateScoreText();
@@ -82,7 +82,7 @@ class BakeryGameScene extends Phaser.Scene {
     this.add.rectangle(gx, (gy0 + gy1) / 2, 16, gy1 - gy0, 0x2a2016).setStrokeStyle(2, 0x5a3f2e).setDepth(800);
     this.safeZoneRect = this.add.rectangle(gx, gy0, 16, 0, 0x3a8a4a, 0.45).setOrigin(0.5, 0).setDepth(801);
     this.tempFill = this.add.rectangle(gx, gy1, 12, 2, 0x2fb8ac).setOrigin(0.5, 1).setDepth(802);
-    this.add.text(gx, gy0 - 48, "HEAT", { fontSize: "10px", color: "#3a2a1a", fontStyle: "bold" }).setOrigin(0.5).setDepth(800);
+    this.add.text(gx, gy0 - 66, "HEAT", { fontSize: "10px", color: "#3a2a1a", fontStyle: "bold" }).setOrigin(0.5).setDepth(800);
 
     this.stokeBtn = this.add.circle(gx, gy0 - 24, 14, 0xd9532a, 1).setStrokeStyle(2, 0x241811, 1).setDepth(802).setInteractive({ useHandCursor: true });
     const flameG = this.add.graphics().setDepth(803);
@@ -90,11 +90,16 @@ class BakeryGameScene extends Phaser.Scene {
     flameG.fillTriangle(gx - 5, gy0 - 18, gx + 5, gy0 - 18, gx, gy0 - 32);
     flameG.fillStyle(0xfff3d0, 1);
     flameG.fillTriangle(gx - 2, gy0 - 20, gx + 2, gy0 - 20, gx, gy0 - 26);
+    this.add.text(gx, gy0 - 46, "STOKE\n\u2191", { fontSize: "9px", color: "#3a2a1a", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(803);
     this.stokeBtn.on("pointerdown", () => this.stoke());
 
     this.ventBtn = this.add.circle(gx, gy1 + 24, 14, 0x2fb8ac, 1).setStrokeStyle(2, 0x241811, 1).setDepth(802).setInteractive({ useHandCursor: true });
     this.add.text(gx, gy1 + 24, "\u2744", { fontSize: "14px", color: "#0c1a18" }).setOrigin(0.5).setDepth(803);
+    this.add.text(gx, gy1 + 44, "VENT\n\u2193", { fontSize: "9px", color: "#3a2a1a", fontStyle: "bold", align: "center" }).setOrigin(0.5).setDepth(803);
     this.ventBtn.on("pointerdown", () => this.vent());
+
+    this.heatKeys = this.input.keyboard.addKeys({ up: "UP", down: "DOWN", w: "W", s: "S" });
+    this._upWasDown = false; this._downWasDown = false;
   }
 
   stoke() {
@@ -227,6 +232,8 @@ class BakeryGameScene extends Phaser.Scene {
 
   update(t, delta) {
     if (!this.running || this.done) return;
+    if (this.heatKeys.up.isDown || this.heatKeys.w.isDown) this.stoke();
+    if (this.heatKeys.down.isDown || this.heatKeys.s.isDown) this.vent();
     const tier = BAKERY_TIERS[this.tierIdx];
     this.temp = Phaser.Math.Clamp(this.temp - tier.decay * (delta / 1000), 0, 100);
     if (this.stokeCooldown > 0) this.stokeCooldown -= delta;
