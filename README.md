@@ -1,147 +1,105 @@
 # Uchar Gilam — The Flying Carpet
 
-A short browser game adapted from the Uzbek folk tale *Uchar Gilam*, reworked so every
+A story game adapted from the Uzbek folk tale *Uchar Gilam*, reworked so every
 side-character's riddle is a piece of one buried scandal instead of five unrelated
-errands. Built with [Phaser 3](https://phaser.io). No build step, no external services,
-no image files — every visual is drawn from flat shapes at runtime.
+errands. Built with [Phaser 3](https://phaser.io). No build step and no asset files:
+every picture is painted in code at runtime and every sound — including the music on
+dutar, ney and doira — is synthesised in the browser.
 
-**Play time:** roughly 45–65 minutes.
+**Play time:** roughly 40–60 minutes. Progress saves automatically; the title screen
+offers **Continue**.
+
+**Play online:** https://sherlockianec.github.io/carpet-game/
 
 ---
 
-## 1. Play it locally
+## Play it locally
 
-Just open `index.html` in a browser (double-click it, or drag it into a browser
-window). Everything — Phaser included — is a local file, so it works completely
-offline.
-
-If your browser is unusually strict about `file://` pages, run a tiny local server
-from this folder instead and it will work the same way:
+Serve the folder with any static web server and open it in a browser:
 
 ```bash
 python3 -m http.server 8000
 # then open http://localhost:8000
 ```
 
-## 2. Put it on GitHub Pages (so anyone with a link can play)
+(Opening `index.html` straight from disk also works in most browsers.) The two
+fonts load from Google Fonts; offline, the game falls back to a built-in serif.
 
-1. Create a new repository on GitHub (public, so Pages can serve it for free).
-2. Push everything in this folder to the repo, **keeping the folder structure**
-   (`index.html`, `phaser.min.js`, and the `src/` folder all need to stay siblings):
-   ```bash
-   git init
-   git add .
-   git commit -m "Uchar Gilam: The Flying Carpet"
-   git branch -M main
-   git remote add origin https://github.com/<you>/<repo-name>.git
-   git push -u origin main
-   ```
-3. On GitHub: **Settings → Pages → Build and deployment → Source: "Deploy from a
-   branch"**, branch `main`, folder `/ (root)`. Save.
-4. GitHub gives you a URL that looks like:
-   `https://<you>.github.io/<repo-name>/`
-   That link is the whole game — share it with anyone, no install needed.
+## Controls
 
-(It usually takes 30–90 seconds after saving for the first deploy to go live.)
+| Where | Keyboard / mouse | Touch |
+|---|---|---|
+| Walking (village, towns, the road) | **WASD** / arrows, or click the ground | tap the ground |
+| Talk / look | walk up and press **E** (or Space), or click the person | tap the person |
+| Dialogue | click, **Space** or **Enter** — first press finishes the line | tap |
+| Carpet flights | hold **Space** / **W** / **↑** / the mouse to rise, let go to sink | touch and hold |
+| Bakery | click an oven or press **1 2 3** | tap an oven |
+| Saddler | drag pieces onto the stand | drag |
+| Kitchen | click the ingredients the ticket asks for | tap |
+| Duel | **WASD** move · **Space/J** strike (press again to combo) · **Shift/K** roll | left-side drag to move, STRIKE / ROLL buttons |
+| Anywhere | **Esc** pause · **M** sound on/off | pause and sound buttons, top right |
 
----
+## What happens where
 
-## 3. How to play
+- **The village** — find the old traveller who gives you the carpet. Villagers point the way; after a couple of wrong guesses a sparkle marks him.
+- **The road to the palace** — slip past lantern patrols at night. Hide in the shadow of carts, hay and bushes. Being seen sends you back to the last milestone.
+- **Flights** — five hand-built routes between the towers and cloud banks, each harder than the last: birds, then arrows (a **!** warns where they come from), wind gusts, and lightning in the storm (the sky flashes where it will strike). Golden sparks are optional; every 12 caught restores a heart. A halfway lantern is a checkpoint.
+- **Towns** — find the right person among the crowd. Wrong people give hints; the sparkle helps after three misses.
+- **Bakery** — loaves darken from dough to gold to burnt; pull each one while its ring is in the gold band. 20 good loaves, no more than 5 ruined.
+- **Saddler** — build a ten-piece saddle in the right order: each piece sits on another.
+- **Kitchen** — eight tickets, each a real Uzbek dish (plov, shurpa, lagman, samsa, manti…). Serve six.
+- **Duel** — a flashback as King Sanobar: two waves of attendants, then Qahraton. Enemies glow and shout before they lunge — roll through, then strike. Falling only restarts the current wave.
 
-| Section | Controls |
-|---|---|
-| **Village** (opening) / **Towns** (finding the right person) | **WASD**/**Arrows** to walk around, or click/tap a spot on the ground to walk there. Walk up to someone to talk. Wrong person = a one-line dead end (walk away and try again). Right person = the real conversation. |
-| **Road to the Palace** (Chapter 1, after the village) | **Arrows**/**A-D** to slide side to side and slip through the gaps in the patrols. |
-| **Flying carpet** | Hold **↑** / **Space**, or click-and-hold anywhere, to rise. Release to fall. Each trip is a fixed, hand-scaled course (same layout every retry) that gets both longer and tighter as the story goes on; a second thing to dodge (birds, then arrows) shows up from the second trip onward. A trip only ends once its last obstacle is behind you — never mid-obstacle. |
-| **Bakery minigame** | 50 loaves in three escalating paces. Click each loaf before it burns - but a catch only counts if the oven's heat is inside the marked band when you take it. Heat drifts down on its own; click the flame to warm it, the snowflake to cool it. Too many ruined loaves in one pace (more than 5) or across the whole bake (more than 10) and the batch starts over. |
-| **Saddler minigame** | A real 24+ piece saddle, against a minute-long clock. Click a piece in the tray, then click its matching outline. A wrong guess costs 2 seconds. Run out of time and the tray reshuffles for another go. |
-| **Kitchen minigame** | 20 rounds pulling from a pool of 20 ingredients. The counter starts with 6 options and grows by one (keeping most of what was there) up to 10, so the board is always a little different, never a clean reset. |
-| **Duel (flashback)** | **WASD**/**Arrows** to move, **Space** to attack, **Shift** to roll (brief invulnerability). Small on-screen buttons appear automatically for touch/mobile. |
-| **Dialogue** | Click the **Continue ▸** button (or the dialogue box itself, or press **Space**) to advance a line. |
+No one is stuck for good: after two failed attempts at any challenge, the pause menu offers to skip it.
 
-Nobody is permanently stuck: falling short just means trying that section again from
-its start (a full retry, not a soft checkpoint - the bakery's 50 loaves and the
-saddler's whole tray reset together), and the duel restarts on defeat with no
-penalty. The point is the story, not a punishing difficulty curve.
+## How the story is structured (and why)
 
----
-
-## 4. How the story is structured (and why)
-
-The five people the hero visits — the couple in the oven, the gravekeeper, the baker,
-the saddler, and King Sanobar — don't know each other and never refer to a shared
-web of acquaintance. They're each independently tangled in the *same* twenty-year-old
-event (Sanobar killing his steward Qahraton over an affair with Queen Gul), verified
-only through what the player carries between them: a cloth swatch, a whispered
-password, and finally a sealed letter.
+The five people the hero visits — the couple in the kiln, the gravekeeper, the baker,
+the saddler, and King Sanobar — don't know each other. They're each independently
+tangled in the *same* twenty-year-old event (Sanobar killing his steward Qahraton over
+an affair with Queen Gul), verified only through what the player carries between
+them: a cloth swatch, a whispered phrase, and finally a sealed case.
 
 The order the player *travels* in and the order people *tell their story* in run in
-opposite directions on purpose — you visit the oven couple first and Sanobar last,
-but Sanobar tells his story first (he has nothing left to wait for) and the oven
-couple tell theirs last (they're the ones who needed everyone else's piece before
-they'd trust you with their own). If you want to see that structure in one place,
-it's the `sequence` array at the bottom of `src/data.js`.
+opposite directions on purpose: you visit the kiln couple first and Sanobar last, but
+Sanobar tells his story first and the kiln couple tell theirs last. The whole order
+is the `sequence` array at the bottom of `src/data.js`.
 
-**Deliberate simplification from the source text:** in the original tale, the
-*father* makes the doomed trip to the palace to ask for the princess's hand, and the
-son only sets out afterward. Here the player character makes that trip directly, so
-there's one continuous controllable protagonist instead of a cutscene-only father.
-The short "Road to the Palace" dodge-the-patrols beat between the village and the
-audience with the King is this version's own addition, giving that trip the same
-"every location is also a small game" treatment as everywhere else.
+**Simplification from the source:** in the original tale the *father* makes the
+doomed trip to the palace; here the player character goes directly. **Left
+unresolved, as in the written retelling:** whether Gul knew, that last night, that
+Qahraton meant it as a goodbye.
 
-**Deliberately left unresolved**, same as in the written retelling this game is
-based on: whether Gul knew, that last night, that Qahraton meant it as a goodbye.
-
----
-
-## 5. Project layout
+## Project layout
 
 ```
-index.html          – loads Phaser + every script, in order
-phaser.min.js        – Phaser 3, vendored locally (no CDN dependency)
-src/data.js           – ALL text, colors, and the master chapter order live here
-src/draw.js            – procedural art: characters, Timurid buildings, the carpet,
-                          bazaar props, skulls/graves, etc. Everything else calls into this.
-src/DialogueBox.js       – the reusable text-box UI, with a visible Continue button
-src/GridMover.js          – shared free-movement controller (bazaar + road-to-palace)
-src/SceneBookends.js       – Title screen + Ending screen
-src/SceneHallOfSkulls.js    – cold-open hook + the real "hall of skulls" chapter
-src/SceneVillagePalace.js    – village → road-to-palace minigame → palace audience
-src/SceneCarpet.js             – the flying/travel minigame, reused for every trip
-src/SceneTown.js                 – the reusable bazaar "find the right person" scene
-src/SceneMiniGames.js              – bakery / saddler / kitchen minigames
-src/SceneDuel.js                     – the flashback combat set-piece
-src/main.js                            – Phaser game config, boots TitleScene
+index.html               loads Phaser + every script, in order
+phaser.min.js            Phaser 3.90, vendored (no CDN)
+src/core.js              stage size, palette, seeded randomness, texture pool, save data, story flow, BaseScene
+src/data.js              ALL story text, what every character looks like, flight tuning, chapter order
+src/audio.js             synthesised sound effects, ambience and the music sequencer
+src/paint.js             Canvas brush helpers: gradients, paths, grain, ikat/tile patterns, panels
+src/art-people.js        the layered, animated characters (blinking, walking, talking) and portraits
+src/art-world.js         skies, skylines, Timurid architecture, houses, trees, props, the horse, the carpet
+src/ui.js                buttons, HUD, banners, item cards, the dialogue box, the pause menu
+src/Walk.js              walking controller, props with footprints, talk prompts, ambient particles
+src/SceneBookends.js     title screen and the wedding ending
+src/SceneHallOfSkulls.js cold open, King Sanobar's audience, the hall and the escape
+src/SceneVillagePalace.js village, the night road, the throne room
+src/SceneCarpet.js       the flights (and the short flights home)
+src/SceneTown.js         every "find the right person" place
+src/SceneMiniGames.js    bakery, saddler, kitchen
+src/SceneDuel.js         the flashback fight
+src/main.js              Phaser config; waits for fonts, then boots
 ```
 
-Everything is data-driven through `STORY` in `data.js`. To edit dialogue, retune
-carpet difficulty, add a new town, or reorder chapters, you generally only need to
-touch that one file — the scene code just reads whatever is there.
+To edit dialogue, change how someone looks, retune a flight (`STORY.flights`: speed,
+length, gap size) or reorder chapters, you generally only touch `src/data.js`.
+Minigame tuning sits in constants at the top of each class (`BAKE`, `SADDLE_PARTS`,
+`DISHES`, `ARENA`).
 
-## 6. Known limitations / easy next steps
+### Testing a single scene
 
-- No sound or music yet (the brief mentioned dutar/rubab/ney — there's a hook for
-  it, but no audio files are bundled).
-- No save/resume — a play session is meant to be one sitting. (Browser storage APIs
-  were deliberately avoided so this also works safely if you ever paste the code
-  into a Claude-style in-chat preview, where `localStorage` is disabled.)
-- Art is illustrated vector built entirely from Phaser Graphics shapes (thick
-  outlines, layered silhouettes, no image files) rather than hand-painted sprites —
-  closer to a stylized paper-cutout look than a fully painted illustration. Swapping
-  in real artwork later just means replacing the `make*` functions in `draw.js` with
-  `scene.add.image(...)` calls against loaded textures — the rest of the code
-  doesn't care how those objects were built.
-- The bazaar's environment props (stalls, trees, rugs, rocks) are scattered
-  procedurally each time a town loads, so the layout varies slightly between visits —
-  this is intentional (it's what makes the space feel less like a fixed diorama), but
-  it does mean prop placement isn't hand-composed.
-- Combat numbers (health, damage, speed) are all top-of-file constants in
-  `SceneDuel.js` if the fight feels too easy or too hard. Carpet trip length/gap
-  size live in `STORY.carpetThemes` in `data.js`; each trip's actual obstacle
-  layout is generated once (seeded, so it's identical on every retry) by
-  `buildSequence()` in `SceneCarpet.js`. The road-to-palace works the same way via
-  `buildRoadSequence()` in `SceneVillagePalace.js`. Bakery pacing/mistake limits are
-  the `BAKERY_TIERS` constant at the top of `SceneMiniGames.js`; the saddle's parts
-  and layout are `SADDLE_PARTS` in the same file; the kitchen's ingredient pool and
-  per-tier counts are `KITCHEN_POOL` / `KITCHEN_TIER_SIZES`.
+- `?step=7` — jump to that entry of `STORY.sequence` (add `&sub=1` for the second part of a chapter)
+- `?scene=DuelScene` — open one scene directly
+- `?mute=1` — start silent · `?timer=1` — keep the game running in a background tab

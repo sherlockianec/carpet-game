@@ -1,20 +1,46 @@
 // ============================================================
-// data.js — all story text + config in one place.
-// Edit dialogue, colors, or the chapter order here without
+// data.js — all story text, who looks like what, and the order
+// of chapters. Edit dialogue, characters or pacing here without
 // touching any gameplay code.
 // ============================================================
 
-function L(speaker, text) {
-  return { speaker: speaker, text: text };
-}
+function L(speaker, text) { return { speaker: speaker, text: text }; }
+
+// ---------- what everyone looks like ----------
+const HERO = { robe: 0x1f6f6f, robe2: 0x134a4a, trim: 0xd9a441, shirt: 0xf2e6cc, pattern: "ikat", head: "doppi", mood: "neutral" };
+const SANOBAR = { body: "royal", robe: 0x7a1f2a, trim: 0xd9a441, head: "crown", beard: "full", hair: 0x3a2a20, beardColor: 0x4a3a30, mood: "grim", skin: 0xd6b48a, scale: 1.12, build: 1.1 };
+const KING = { body: "royal", robe: 0x4a2f7a, trim: 0xd9a441, head: "crown", beard: "long", hair: 0x8a8070, beardColor: 0xcfc8b8, mood: "stern", elder: true, scale: 1.1, build: 1.12 };
 
 const STORY = {
+
+  cast: {
+    "You": HERO,
+    "Old Traveler": { body: "cloak", robe: 0x5a5040, head: "kalpak", beard: "long", elder: true, mood: "kind", holding: "staff", skin: 0xcfb08a },
+    "The King": KING,
+    "Minister": { robe: 0x2c3e6b, trim: 0xc9a24b, pattern: "stripes", head: "jewel", headColor: 0xf2ecdc, beard: "goatee", mood: "worried", holding: "staff" },
+    "Oven-Keeper": { body: "rags", robe: 0x6a5a48, head: "wrap", headColor: 0xd9cdb4, beard: "full", elder: true, mood: "sad", skin: 0xc9a47a },
+    "Gravekeeper": { body: "cloak", robe: 0x3e4048, head: "hood", beard: "full", elder: true, mood: "sad", holding: "lantern", skin: 0xcdb08e },
+    "Baker": { body: "apron", robe: 0xb5553a, trim: 0xd9a441, head: "doppi", beard: "mustache", mood: "worried", build: 1.15 },
+    "Saddler": { robe: 0x6b4a2e, trim: 0xc9a24b, pattern: "stripes", head: "doppi", beard: "full", hair: 0x3a2a1a, mood: "neutral" },
+    "Guard": { body: "armor", robe: 0x3a2440, trim: 0xc9a24b, head: "helmet", beard: "mustache", mood: "stern", holding: "spear" },
+    "Head Cook": { body: "apron", robe: 0x8a3a2a, head: "turban", headColor: 0xf6efe0, beard: "goatee", mood: "stern", build: 1.2, holding: "ladle" },
+    "King Sanobar": SANOBAR,
+    "Qahraton": { body: "cloak", robe: 0x1e1a22, trim: 0x8e2f2f, head: "turban", headColor: 0x2a2228, beard: "goatee", mood: "grim", holding: "sword", skin: 0xc9b090, scale: 1.08 },
+    "Gul": { body: "dress", robe: 0x7a2a4a, trim: 0xd9a441, female: true, head: "scarf", headColor: 0xd9a441, mood: "worried", vest: 0x3a1a2a }
+  },
 
   oldMan: [
     L("Old Traveler", "You have a sharp mind, boy - sharper than your birth should allow."),
     L("Old Traveler", "Take this rug. Sit upon it and speak the old words, and it will carry you anywhere in the blink of an eye. Fold it and speak them differently, and it becomes a plain handkerchief."),
     L("Old Traveler", "When the time comes to marry, ask for no one but the King's daughter. Refuse every other match, whatever your parents say."),
     L("Old Traveler", "Go well. We will not meet again.")
+  ],
+
+  villagers: [
+    { x: 330, y: 760, name: "Water-Carrier", cfg: { robe: 0x7a5a3a, head: "cap", trim: 0xb5553a, holding: "jug" }, lines: ["Mind the well on your way past - the rope's gone thin again.", "There's an old man by the apricot tree. Been sitting there since dawn, asking after you."] },
+    { x: 1540, y: 700, name: "Neighbour", cfg: { body: "dress", robe: 0x5a7a5a, female: true, head: "scarf", headColor: 0xb2283a, vest: 0x2a3a2a }, lines: ["Haven't seen you around much. Off somewhere?", "A traveller in a white kalpak asked which house was yours. Strange eyes, that one."] },
+    { x: 1370, y: 860, name: "Child", cfg: { robe: 0x8a6a9a, child: true, head: "none", mood: "kind" }, lines: ["Sharp eyes, you. Everyone says so!", "The old man under the tree gave me a dried apricot. Go see him!"] },
+    { x: 620, y: 950, name: "Farmer", cfg: { robe: 0x6a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full", holding: "basket" }, lines: ["Good harvest this year. The apricots nearly broke the branches.", "A stranger by the tree is waiting for someone. Not me, I asked."] }
   ],
 
   palace: [
@@ -25,26 +51,25 @@ const STORY = {
     L("The King", "Fine. Let it be his problem, not mine. Go, boy - and don't return empty-handed.")
   ],
 
-  routeMap: {
+  road: {
     title: "The Road to the Palace",
-    caption: "Keep to the road - slip past the patrols.",
-    distance: 2000, speed: 150, gapHalf: 78
+    intro: [L("", "Night patrols watch the road to the palace. A commoner caught out after curfew is sent back to the village gate.")],
+    caught: ["Halt! Back the way you came!", "You there - not tonight!", "Curfew! Off with you!"]
   },
 
   towns: {
 
     oven: {
-      title: "The Edge of a Distant City",
-      envKind: "city",
-      skyTop: 0xf2c98a, skyBottom: 0xd9873f, buildingColor: 0xc9a24b, accent: 0xd9a441, groundColor: 0x8a6a4a,
+      title: "The Edge of a Distant City", sub: "the old kiln", env: "city", music: "bazaar",
+      objective: "Find the couple who live in the old kiln",
       spots: [
-        { xf: 0.13, yf: 0.58, robe: 0x7a5a3a, name: "Neighbor", miss: ["The old ones? Keep to themselves.", "Strange house. I've never once seen the door used."] },
-        { xf: 0.27, yf: 0.80, robe: 0x9a7a4a, name: "Neighbor", miss: ["Never seen them both outside at once.", "If you must ask someone, ask at the old kiln."] },
-        { xf: 0.20, yf: 0.38, robe: 0x6a8a7a, name: "Water-Carrier", holding: "basket", miss: ["Heavy work, this. No time for gossip.", "Ask by the kiln - they've been here longer than me."] },
-        { xf: 0.50, yf: 0.45, robe: 0x8a6a9a, name: "Child", scale: 0.82, miss: ["I'm not allowed to talk to strangers!", "Mama says the kiln people are sad, not scary."] },
-        { xf: 0.58, yf: 0.82, robe: 0x5a7a8a, name: "Cart-Man", miss: ["Move along, I've a delivery.", "Kiln's that way, if that's your business."] },
-        { xf: 0.86, yf: 0.42, robe: 0x9a5a5a, name: "Weaver", miss: ["Fine thread, if you're buying.", "Not much use to a wanderer, I'd think."] },
-        { xf: 0.72, yf: 0.72, robe: 0x5a5040, name: "Oven-Keeper", headwear: "kalpak", beard: true, target: true }
+        { x: 300, y: 720, name: "Neighbour", cfg: { robe: 0x7a5a3a, head: "doppi" }, miss: ["The old ones? Keep to themselves.", "Strange house. I've never once seen the door used."] },
+        { x: 560, y: 930, name: "Neighbour", cfg: { body: "dress", robe: 0x9a4a3a, female: true, head: "scarf", headColor: 0xd9a441 }, miss: ["Never seen them both outside at once.", "If you must ask someone, ask at the old kiln - east end of the square."] },
+        { x: 820, y: 690, name: "Water-Carrier", cfg: { robe: 0x6a8a7a, head: "cap", holding: "jug" }, miss: ["Heavy work, this. No time for gossip.", "Ask by the kiln - they've been here longer than me."] },
+        { x: 1060, y: 860, name: "Child", cfg: { robe: 0x8a6a9a, child: true, mood: "kind" }, miss: ["I'm not allowed to talk to strangers!", "Mama says the kiln people are sad, not scary."] },
+        { x: 1290, y: 700, name: "Cart-Man", cfg: { robe: 0x5a7a8a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["Move along, I've a delivery.", "Kiln's that way, if that's your business. The big clay dome."] },
+        { x: 380, y: 1000, name: "Weaver", cfg: { body: "dress", robe: 0x5a3a6a, female: true, head: "scarf", headColor: 0x2fb8ac, pattern: "ikat", robe2: 0xd9a441 }, miss: ["Fine thread, if you're buying.", "Not much use to a wanderer, I'd think."] },
+        { x: 1580, y: 840, name: "Oven-Keeper", target: true }
       ],
       dialogue: [
         L("Oven-Keeper", "We share one robe between us, stranger. There is little else worth telling."),
@@ -54,18 +79,17 @@ const STORY = {
     },
 
     graveyard: {
-      title: "A Quiet Cemetery",
-      envKind: "cemetery",
-      skyTop: 0x6a7a90, skyBottom: 0x2a2a3a, buildingColor: 0x585047, accent: 0x8a8070, groundColor: 0x4a4a3a,
+      title: "A Quiet Cemetery", sub: "east of the city", env: "cemetery", music: "grave",
+      objective: "Find the gravekeeper among the graves",
       spots: [
-        { xf: 0.12, yf: 0.42, style: "grave", miss: ["Just packed earth.", "A name long worn away."] },
-        { xf: 0.30, yf: 0.32, style: "grave", miss: ["Nothing but weeds here.", "No one has visited in years."] },
-        { xf: 0.18, yf: 0.75, style: "grave", miss: ["Empty. Untended."] },
-        { xf: 0.40, yf: 0.62, style: "grave", miss: ["A cracked stone, no name at all."] },
-        { xf: 0.55, yf: 0.36, style: "grave", miss: ["Moss has taken the whole face of it."] },
-        { xf: 0.62, yf: 0.78, style: "grave", miss: ["Sunk deep into the earth. Old, this one."] },
-        { xf: 0.76, yf: 0.50, style: "grave", miss: ["Nothing. Just stone and silence."] },
-        { xf: 0.86, yf: 0.72, style: "grave", target: true, name: "Gravekeeper" }
+        { x: 280, y: 720, grave: "slab", miss: ["Just packed earth.", "A name long worn away."] },
+        { x: 560, y: 650, grave: "box", miss: ["Nothing but weeds here.", "No one has visited in years."] },
+        { x: 420, y: 930, grave: "mound", miss: ["Empty. Untended."] },
+        { x: 820, y: 820, grave: "slab", miss: ["A cracked stone, no name at all."] },
+        { x: 1080, y: 660, grave: "pole", miss: ["Rags tied to a pole, faded white. Someone grieved here, once."] },
+        { x: 1180, y: 940, grave: "box", miss: ["Sunk deep into the earth. Old, this one. Somewhere close by, someone is crying."] },
+        { x: 1420, y: 720, grave: "slab", miss: ["Nothing. Just stone and silence. The weeping comes from further east."] },
+        { x: 1660, y: 880, name: "Gravekeeper", target: true }
       ],
       dialogue: [
         L("Gravekeeper", "...Twenty years I've sat with a promise I never kept."),
@@ -75,46 +99,43 @@ const STORY = {
     },
 
     bakery: {
-      title: "A Street of Ovens",
-      envKind: "bazaar",
-      skyTop: 0xe07a4a, skyBottom: 0x3a2a55, buildingColor: 0x6a4a5a, accent: 0xd9a441, groundColor: 0x4a3545,
+      title: "A Street of Ovens", sub: "the bakery that never sells", env: "bazaar", music: "dusk",
+      objective: "Find the baker who never sells his bread",
       spots: [
-        { xf: 0.13, yf: 0.40, robe: 0x4a6a5a, name: "Tailor", miss: ["Bread? Try further down.", "I only sew, friend."] },
-        { xf: 0.30, yf: 0.78, robe: 0x8a5a3a, name: "Fruit-Seller", holding: "basket", miss: ["That bakery? Strangest place in the city.", "They never sell a single loaf, you know."] },
-        { xf: 0.48, yf: 0.34, robe: 0x9a6a8a, name: "Porter", miss: ["Careful, coming through!", "Ovens are that way - can't miss the smell."] },
-        { xf: 0.60, yf: 0.62, robe: 0x6a8a9a, name: "Beggar", scale: 0.9, miss: ["Spare bread, friend?", "They give theirs to the river, not to me."] },
-        { xf: 0.20, yf: 0.60, robe: 0x8a8a4a, name: "Child", scale: 0.82, miss: ["I like watching the loaves come out!", "Papa says the baker never smiles."] },
-        { xf: 0.72, yf: 0.72, robe: 0xc9a24b, name: "Baker", headwear: "doppi", target: true }
+        { x: 300, y: 760, name: "Tailor", cfg: { robe: 0x4a6a5a, head: "doppi", beard: "goatee" }, miss: ["Bread? Try further down.", "I only sew, friend."] },
+        { x: 640, y: 940, name: "Fruit-Seller", cfg: { body: "dress", robe: 0x8a5a3a, female: true, head: "scarf", headColor: 0xe2c04a, holding: "basket" }, miss: ["That bakery? Strangest place in the city.", "They never sell a single loaf, you know."] },
+        { x: 900, y: 700, name: "Porter", cfg: { robe: 0x9a6a8a, head: "wrap", headColor: 0xe8dcc4 }, miss: ["Careful, coming through!", "Ovens are at the far end - can't miss the smell."] },
+        { x: 1120, y: 880, name: "Beggar", cfg: { body: "rags", robe: 0x6a8a9a, head: "wrap", headColor: 0x8a7a6a, beard: "full", elder: true, mood: "sad" }, miss: ["Spare bread, friend?", "They give theirs to the river, not to me."] },
+        { x: 440, y: 650, name: "Child", cfg: { robe: 0x8a8a4a, child: true, mood: "kind" }, miss: ["I like watching the loaves come out!", "Papa says the baker never smiles."] },
+        { x: 1600, y: 800, name: "Baker", target: true }
       ],
       dialogue: [
         L("Baker", "Every week, bread. Never sold. I don't expect a stranger to understand why."),
         L("Baker", "Help me finish today's batch before it burns - maybe then I'll trust you enough to explain.")
       ],
-      after: "minigame", minigame: "BakeryGameScene"
+      minigame: "BakeryGameScene"
     },
 
     saddler: {
-      title: "The Saddler's Row",
-      envKind: "bazaar",
-      skyTop: 0xead9b0, skyBottom: 0xb98a55, buildingColor: 0x6b4a2e, accent: 0xc9a24b, groundColor: 0x8a6a4a,
+      title: "The Saddler's Row", sub: "leather and brass", env: "saddler", music: "bazaar",
+      objective: "Find the saddler who breaks his own work",
       spots: [
-        { xf: 0.14, yf: 0.76, robe: 0x5a6a4a, name: "Cobbler", miss: ["Saddles aren't my trade.", "You want the one who breaks his own work. End of the row."] },
-        { xf: 0.34, yf: 0.38, robe: 0x7a5a3a, name: "Cart-Driver", miss: ["He builds one a year. Sells it. Buys it right back. Smashes it.", "Nobody's ever gotten a straight answer from him."] },
-        { xf: 0.55, yf: 0.68, robe: 0x9a8a5a, name: "Stable-Hand", miss: ["Horses all through here, mind your step.", "He's particular about who he lets near his work."] },
-        { xf: 0.24, yf: 0.55, robe: 0x8a6a9a, name: "Trader", holding: "basket", miss: ["Leatherwork, best in the city.", "Except his - never for sale, that one."] },
-        { xf: 0.68, yf: 0.36, robe: 0x6a9a8a, name: "Child", scale: 0.82, miss: ["He let me watch him work once!", "He talks to the saddle like it can hear him."] },
-        { xf: 0.72, yf: 0.72, robe: 0x6b4a2e, name: "Saddler", headwear: "doppi", beard: true, target: true }
+        { x: 300, y: 900, name: "Cobbler", cfg: { robe: 0x5a6a4a, head: "doppi" }, miss: ["Saddles aren't my trade.", "You want the one who breaks his own work. End of the row."] },
+        { x: 620, y: 690, name: "Cart-Driver", cfg: { robe: 0x7a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["He builds one a year. Sells it. Buys it right back. Smashes it.", "Nobody's ever gotten a straight answer from him."] },
+        { x: 960, y: 900, name: "Stable-Hand", cfg: { robe: 0x9a8a5a, head: "cap", trim: 0x1f6f6f }, miss: ["Horses all through here, mind your step.", "He's particular about who he lets near his work."] },
+        { x: 520, y: 830, name: "Trader", cfg: { body: "dress", robe: 0x8a6a9a, female: true, head: "scarf", headColor: 0xf6ecd8, holding: "basket" }, miss: ["Leatherwork, best in the city.", "Except his - never for sale, that one."] },
+        { x: 1240, y: 700, name: "Child", cfg: { robe: 0x6a9a8a, child: true, mood: "kind" }, miss: ["He let me watch him work once!", "He talks to the saddle like it can hear him."] },
+        { x: 1600, y: 860, name: "Saddler", target: true }
       ],
       dialogue: [
         L("Saddler", "One saddle a year. Sold, bought back, broken. Don't ask me why - I'm not sure I fully know myself."),
         L("Saddler", "If you've nothing better to do, help me finish this year's. Then we'll talk.")
       ],
-      after: "minigame", minigame: "SaddlerGameScene"
+      minigame: "SaddlerGameScene"
     },
 
     saddlerRevisit: {
-      title: "The Saddler's Row, Once More", revisit: true, grantClue: "swatch", envKind: "bazaar",
-      skyTop: 0xead9b0, skyBottom: 0xb98a55, buildingColor: 0x6b4a2e, accent: 0xc9a24b, groundColor: 0x8a6a4a,
+      base: "saddler", title: "The Saddler's Row, Once More", grantClue: "swatch", objective: "Tell the saddler what became of Qahraton",
       dialogue: [
         L("You", "King Sanobar told me everything. Qahraton is dead - killed the night his queen was found unfaithful."),
         L("Saddler", "...Then he really is gone."),
@@ -126,8 +147,7 @@ const STORY = {
     },
 
     bakeryRevisit: {
-      title: "The Street of Ovens, Once More", revisit: true, grantClue: "phrase", envKind: "bazaar",
-      skyTop: 0xe07a4a, skyBottom: 0x3a2a55, buildingColor: 0x6a4a5a, accent: 0xd9a441, groundColor: 0x4a3545,
+      base: "bakery", title: "The Street of Ovens, Once More", grantClue: "phrase", objective: "Show the baker the cloth with his mark",
       dialogue: [
         L("You", "The saddler is still alive. He gave me this - your mark, on the cloth from Qahraton's last order."),
         L("Baker", "...That's mine, yes."),
@@ -138,8 +158,7 @@ const STORY = {
     },
 
     graveyardRevisit: {
-      title: "The Cemetery, Once More", revisit: true, grantClue: "caseObtained", envKind: "cemetery",
-      skyTop: 0x7a8aa0, skyBottom: 0x2a2a3a, buildingColor: 0x585047, accent: 0x8a8070, groundColor: 0x4a4a3a,
+      base: "graveyard", title: "The Cemetery, Once More", grantClue: "caseObtained", objective: "Bring the baker's words to the gravekeeper",
       dialogue: [
         L("You", "The baker is alive, and still keeping his half of something. He gave me a phrase - 'the keeper of the west gate of the dead.'"),
         L("Gravekeeper", "...That was real, then. He was real."),
@@ -150,8 +169,7 @@ const STORY = {
     },
 
     ovenRevisit: {
-      title: "The Oven, One Last Time", revisit: true, envKind: "city",
-      skyTop: 0xd98a4a, skyBottom: 0x5a3a2a, buildingColor: 0xc9a24b, accent: 0xd9a441, groundColor: 0x8a6a4a,
+      base: "oven", title: "The Kiln, One Last Time", objective: "Bring the sealed case home to the kiln",
       dialogue: [
         L("You", "The gravekeeper finally kept his promise. He asked me to bring you this."),
         L("Oven-Keeper", "...Qahraton. He was our son."),
@@ -163,13 +181,10 @@ const STORY = {
         L("Oven-Keeper", "It doesn't undo twenty years. But now, at least, we know the rest of it.")
       ]
     }
-
   },
 
   bakery: {
-    outro: [
-      L("Baker", "There was a saddler, once, tied up in all this. If he still remembers me, so will I remember why I do this.")
-    ]
+    outro: [L("Baker", "There was a saddler, once, tied up in all this. If he still remembers me, so will I remember why I do this.")]
   },
 
   saddler: {
@@ -182,11 +197,10 @@ const STORY = {
   kitchen: {
     intro: [
       L("Guard", "The palace kitchen's short-handed. Cooks welcome, if you're desperate enough to try."),
-      L("You", "I'll manage.")
+      L("You", "I'll manage."),
+      L("Head Cook", "Read the ticket, gather what it asks for, and put it in the kazan. Burn the King's dinner and you'll wish the guard had turned you away.")
     ],
-    outro: [
-      L("Head Cook", "Fine. It was you. Go on, then - the King wants to see who's been showing him up.")
-    ]
+    outro: [L("Head Cook", "Fine. It was you. Go on, then - the King wants to see who's been showing him up.")]
   },
 
   hallOfSkulls: {
@@ -207,16 +221,14 @@ const STORY = {
       L("King Sanobar", "As I moved on him, she cried out something. A plea for his life, or an explanation of her own - I've never been sure which. Twenty years, and neither pride nor grief has let either of us raise it again."),
       L("King Sanobar", "He was carrying a sealed case that night. It was gone before my men could search the body. The one thread I've never been able to close."),
       L("King Sanobar", "There. Now you know why the hook has stayed empty.")
-    ]
+    ],
+    escape: [L("", "You lift the tea bowl, and under your breath you speak the old words. The carpet folded in your sleeve answers.")]
   },
 
   duel: {
-    qahratonEnter: [
-      L("Qahraton", "So. The King finally came himself.")
-    ],
-    victory: [
-      L("", "Qahraton falls. The orchard is silent. Somewhere behind you, Gul says something you'll spend twenty years trying to remember correctly.")
-    ]
+    intro: [L("", "Twenty years ago. A moonlit orchard. You are King Sanobar, and the steward's attendants are already drawing their blades.")],
+    qahratonEnter: [L("Qahraton", "So. The King finally came himself.")],
+    victory: [L("", "Qahraton falls. The orchard is silent. Somewhere behind you, Gul says something you'll spend twenty years trying to remember correctly.")]
   },
 
   ending: [
@@ -226,24 +238,26 @@ const STORY = {
     L("", "Whether she knew, that last night, that it was meant to be a farewell - no one ever asks her. She never says.")
   ],
 
-  carpetThemes: {
-    desert: { skyTop: 0xf2c98a, skyBottom: 0xd9873f, orb: 0xfff3d0, farColor: 0xb5794a, nearColor: 0x8a5a34, ground: 0xc9a24b, obstacleColor: 0x8a5a34, obstacleAccent: 0xd9a441, kind: "minaret", hazard: "bird", speed: 190, gapHalf: 100, spacing: 300, distance: 2200 },
-    wind:   { skyTop: 0xcfe0e8, skyBottom: 0x6a90a0, orb: 0xffffff, farColor: 0x5a7a88, nearColor: 0x3a5a68, ground: 0x7a8a70, obstacleColor: 0x4a6a58, obstacleAccent: 0xdff0ea, kind: "wind", hazard: "bird", speed: 210, gapHalf: 92, spacing: 270, distance: 3400 },
-    dusk:   { skyTop: 0xe07a4a, skyBottom: 0x3a2a55, orb: 0xffd27a, farColor: 0x5a3a5a, nearColor: 0x3a2645, ground: 0x6a4a5a, obstacleColor: 0x4a2f4a, obstacleAccent: 0xd9a441, kind: "dome", hazard: "bird", speed: 222, gapHalf: 86, spacing: 245, distance: 5000 },
-    day2:   { skyTop: 0xdcd0a0, skyBottom: 0xb98a55, orb: 0xfff3d0, farColor: 0x9a7550, nearColor: 0x6b4a2e, ground: 0x8a6a4a, obstacleColor: 0x6b4a2e, obstacleAccent: 0xc9a24b, kind: "canyon", hazard: "arrow", speed: 235, gapHalf: 80, spacing: 225, distance: 6800 },
-    storm:  { skyTop: 0x3a3a4a, skyBottom: 0x14141e, orb: 0x8a8a9a, farColor: 0x2a2a38, nearColor: 0x1a1a24, ground: 0x201c2a, obstacleColor: 0x2a2a38, obstacleAccent: 0x5a5a68, kind: "storm", hazard: "arrow", speed: 250, gapHalf: 74, spacing: 205, distance: 9000 }
+  // Flights. length = seconds of flying at full speed. gap = the vertical
+  // opening between a tower and the cloud bank above it, in pixels.
+  flights: {
+    desert: { title: "Over the Red Sands", music: "flight1", time: "day", sky: [0x3f86b8, 0x9fd0e0, 0xf3d9a4], ground: 0xd9a861, ridge: 0xc98d4f, ridge2: 0xa86a3a, city: 0xb0784a, tower: "minaret", hazard: null, speed: 430, length: 42, gap: [340, 280], spacing: [560, 470] },
+    wind: { title: "Through the Wind Gate", music: "flight2", time: "day", sky: [0x6f9ab8, 0xb9d4dc, 0xe4e6d6], ground: 0x8a9a6a, ridge: 0x7a8aa0, ridge2: 0x5a6a80, city: 0x6a7a88, tower: "spire", hazard: "bird", speed: 450, length: 50, gap: [320, 260], spacing: [540, 450], wind: true },
+    dusk: { title: "The Evening Road", music: "flight3", time: "dusk", sky: [0x2a2458, 0xb05a6a, 0xf0a060], ground: 0x5a3a4a, ridge: 0x6a3a5a, ridge2: 0x3a2440, city: 0x3a2440, tower: "dome", hazard: "bird", speed: 465, length: 56, gap: [310, 250], spacing: [520, 430] },
+    day2: { title: "The Canyon of Archers", music: "flight4", time: "day", sky: [0x4a86b0, 0xd8c890, 0xe8b070], ground: 0xb07a4a, ridge: 0xa8603a, ridge2: 0x7a4026, city: 0x8a5232, tower: "rock", hazard: "arrow", speed: 480, length: 60, gap: [300, 240], spacing: [510, 420] },
+    storm: { title: "Into the Storm", music: "flight5", time: "storm", sky: [0x15141f, 0x2a2a3e, 0x4a4658], ground: 0x24222e, ridge: 0x2e2c3a, ridge2: 0x1e1c28, city: 0x1e1c28, tower: "tower", hazard: "arrow", speed: 495, length: 64, gap: [300, 236], spacing: [500, 410], storm: true }
   },
 
   sequence: [
     { type: "hallOfSkulls", mode: "prologue" },
     { type: "villagePalace" },
-    { type: "carpet", theme: "desert", toLabel: "the Oven at the City's Edge" },
+    { type: "carpet", theme: "desert", toLabel: "the Kiln at the City's Edge" },
     { type: "town", key: "oven" },
-    { type: "carpet", theme: "wind", toLabel: "the Gravekeeper's Hut" },
+    { type: "carpet", theme: "wind", toLabel: "the Gravekeeper's Cemetery" },
     { type: "town", key: "graveyard" },
-    { type: "carpet", theme: "dusk", toLabel: "the Endless Bakery" },
+    { type: "carpet", theme: "dusk", toLabel: "the Street of Ovens" },
     { type: "town", key: "bakery" },
-    { type: "carpet", theme: "day2", toLabel: "the Saddler's Shop" },
+    { type: "carpet", theme: "day2", toLabel: "the Saddler's Row" },
     { type: "town", key: "saddler" },
     { type: "carpet", theme: "storm", toLabel: "the City of King Sanobar" },
     { type: "kitchenGame" },
@@ -251,41 +265,22 @@ const STORY = {
     { type: "duel" },
     { type: "carpet", quick: true, toLabel: "the Saddler" },
     { type: "town", key: "saddlerRevisit" },
-    { type: "carpet", quick: true, toLabel: "the Bakery" },
+    { type: "carpet", quick: true, toLabel: "the Street of Ovens" },
     { type: "town", key: "bakeryRevisit" },
     { type: "carpet", quick: true, toLabel: "the Gravekeeper" },
     { type: "town", key: "graveyardRevisit" },
-    { type: "carpet", quick: true, toLabel: "the Oven" },
+    { type: "carpet", quick: true, toLabel: "the Kiln" },
     { type: "town", key: "ovenRevisit" },
     { type: "carpet", quick: true, toLabel: "Home" },
     { type: "ending" }
   ]
 };
 
-const GameState = {
-  clues: { swatch: false, phrase: false, caseObtained: false },
-  hasCarpet: false,
-  reset() {
-    this.clues = { swatch: false, phrase: false, caseObtained: false };
-    this.hasCarpet = false;
-  }
-};
-
-const GameFlow = {
-  index: -1,
-  map: {
-    hallOfSkulls: "HallOfSkullsScene",
-    villagePalace: "VillagePalaceScene",
-    carpet: "CarpetScene",
-    town: "TownScene",
-    kitchenGame: "KitchenGameScene",
-    duel: "DuelScene",
-    ending: "EndingScene"
-  },
-  advance(sceneManager) {
-    this.index++;
-    const step = STORY.sequence[this.index];
-    if (!step) { sceneManager.start("TitleScene"); return; }
-    sceneManager.start(this.map[step.type], step);
-  }
-};
+// Revisits borrow everything they don't override from the first visit.
+Object.keys(STORY.towns).forEach(k => {
+  const t = STORY.towns[k];
+  if (!t.base) return;
+  const b = STORY.towns[t.base];
+  ["env", "music", "sub"].forEach(f => { if (t[f] === undefined) t[f] = b[f]; });
+  if (!t.spots) t.spots = b.spots;
+});
