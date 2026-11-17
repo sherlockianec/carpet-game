@@ -432,6 +432,7 @@ class VillagePalaceScene extends BaseScene {
         const a = g.look - g.half + 2 * g.half * i / n, L = g.rays[i];
         pts.push([g.ox + Math.cos(a) * L, g.oy + Math.sin(a) * L * ROAD_SQ, a0 * (1 - 0.72 * L / g.len)]);
       }
+      G.fillStyle(warm, 0.26);                           // what the Canvas renderer uses (no gradients there)
       for (let i = 0; i < n; i++) {
         const p = pts[i], q = pts[i + 1];
         G.fillGradientStyle(warm, warm, warm, warm, a0, p[2], q[2], q[2]);
