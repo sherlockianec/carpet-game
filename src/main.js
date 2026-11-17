@@ -10,7 +10,7 @@ function bootGame() {
   if (Dev.params.mute) { Snd.sfxOn = false; Snd.musicOn = false; }
 
   const scenes = [TitleScene, PauseScene, HallOfSkullsScene, VillagePalaceScene, CarpetScene, TownScene,
-    BakeryGameScene, SaddlerGameScene, KitchenGameScene, DuelScene, EndingScene, BootRouter];
+    BakeryGameScene, RiverScene, SaddlerGameScene, KitchenGameScene, DuelScene, EndingScene, BootRouter];
 
   window.game = new Phaser.Game({
     type: Phaser.AUTO,

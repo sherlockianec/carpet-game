@@ -372,6 +372,7 @@ class TownScene extends BaseScene {
 
   create() {
     const cfg = this.cfg;
+    if (this.sub >= 2 && cfg.minigame === "BakeryGameScene") { this.scene.start("RiverScene"); return; }   // resume after the baking
     if (this.sub >= 1 && cfg.minigame) { this.scene.start(cfg.minigame); return; }
     const env = TOWN_ENV[cfg.env], layout = TOWN_LAYOUTS[cfg.base || this.locKey];
     this.begin({ music: cfg.music, amb: env.amb });

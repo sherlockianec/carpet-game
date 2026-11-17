@@ -299,11 +299,9 @@ function paintPersonArm(ctx, c, side) {
     strokeC(ctx, 0x6b4a2e, 1, 0.7);
     for (let y = hy + 14; y < hy + 28; y += 4.5) { ctx.beginPath(); ctx.moveTo(hx - 13, y); ctx.lineTo(hx + 13, y); ctx.stroke(); }
   } else if (item === "jug") {
-    ctx.beginPath(); ctx.moveTo(hx - 4, hy + 6); ctx.lineTo(hx + 4, hy + 6); ctx.quadraticCurveTo(hx + 3, hy + 12, hx + 11, hy + 19);
-    ctx.quadraticCurveTo(hx + 14, hy + 33, hx, hy + 35); ctx.quadraticCurveTo(hx - 14, hy + 33, hx - 11, hy + 19); ctx.quadraticCurveTo(hx - 3, hy + 12, hx - 4, hy + 6); ctx.closePath();
-    ctx.fillStyle = gradH(ctx, hx - 12, hx + 12, [[0, 0xd98a5a], [1, 0x9a5230]]); ctx.fill();
-    strokeC(ctx, 0x4a2414, 1.8); ctx.stroke();
-    strokeC(ctx, 0xf2d9b0, 1.6, 0.8); ctx.beginPath(); ctx.moveTo(hx - 10.5, hy + 22); ctx.lineTo(hx + 10.5, hy + 22); ctx.stroke();
+    // a terracotta koza carried by the neck
+    ctx.save(); ctx.translate(hx, hy + 44); ctx.scale(0.5, 0.5); paintJug(ctx, 0, 0, 1, "koza", "carry"); ctx.restore();
+    pEll(ctx, hx, hy + 4, 6.9, 7.2); ctx.fillStyle = gradR(ctx, hx - 2, hy + 2, 1, 8, [[0, lighten(c.skin, 0.1)], [1, c.skin]]); ctx.fill(); strokeC(ctx, OL(c.skin), 2); ctx.stroke();
   } else if (item === "lantern") {
     strokeC(ctx, 0x2a2018, 1.6); ctx.beginPath(); ctx.moveTo(hx, hy + 5); ctx.lineTo(hx, hy + 14); ctx.stroke();
     glowDot(ctx, hx, hy + 24, 26, 0xffc860, 0.5);
