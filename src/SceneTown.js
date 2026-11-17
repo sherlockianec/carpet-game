@@ -462,10 +462,12 @@ class TownScene extends BaseScene {
   talk(s, obj) {
     if (!s.grave) this.dbox.actors[s.name] = obj;          // several people share a trade name
     if (s.target) { this.doTarget(); return; }
-    const line = s.miss[(s._n = ((s._n === undefined ? -1 : s._n) + 1)) % s.miss.length];
+    // the first time, everything they have to say; after that, just the useful part
+    const lines = s._told ? [s.miss[s.miss.length - 1]] : s.miss;
+    s._told = true;
     this.misses++;
     const who = s.grave ? null : s.cfg;
-    this.dbox.show([{ speaker: s.grave ? "" : s.name, text: line, who }], () => {
+    this.dbox.show(lines.map(text => ({ speaker: s.grave ? "" : s.name, text, who })), () => {
       if (this.misses >= (this.cfg.guideAfter || 6) && !this.targetMark) {
         const t = this.spots.find(p => p.s.target);
         if (t) { this.targetMark = guideSparkle(this, t.s.x, t.s.y - 230); Snd.play("chime"); UI.toast(this, "Someone nearby seems to be the one", { y: 250 }); }

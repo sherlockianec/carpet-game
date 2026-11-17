@@ -461,6 +461,7 @@ class CarpetScene extends BaseScene {
     this.pts = []; this.pts.n = 0;
 
     this.begin({ music: th.music, amb: th.storm ? "storm" : (th.time === "night" ? "night" : "wind") });
+    promptTextures(this);                       // the "!" warnings (normally made by the walking scenes)
     this.buildWorld(th, this.themeKey);
 
     this.carpet = makeFlyingCarpet(this, CARPET_X, 470, 0.9).setDepth(500);
@@ -929,7 +930,7 @@ class CarpetScene extends BaseScene {
       const sx = A.spr.x - 36, sy = A.spr.y - 70;
       o.aim.clear();
       const k = 1 - A.t / 700;
-      o.aim.lineStyle(3, 0xff6a4a, 0.25 + 0.45 * k);
+      o.aim.lineStyle(4, 0xff5a3a, 0.35 + 0.5 * k);
       const L = Math.hypot(A.target.x - sx, A.target.y - sy), ux = (A.target.x - sx) / L, uy = (A.target.y - sy) / L;
       for (let s = 0; s < L + 600; s += 34) { o.aim.beginPath(); o.aim.moveTo(sx + ux * s, sy + uy * s); o.aim.lineTo(sx + ux * (s + 18), sy + uy * (s + 18)); o.aim.strokePath(); }
       if (A.t <= 0) {

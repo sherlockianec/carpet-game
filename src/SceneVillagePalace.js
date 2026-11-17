@@ -214,10 +214,12 @@ class VillagePalaceScene extends BaseScene {
     STORY.villagers.forEach(v => {
       const p = makePerson(this, v.x, v.y, Object.assign({ facing: v.x > this.hero.x ? -1 : 1 }, v.cfg));
       p.setPerspective(lerp(0.84, 1.12, clamp((v.y - STREET_Y0) / (STREET_Y1 - STREET_Y0), 0, 1))).setDepth(v.y);
-      let n = 0;
+      let told = false;
       this.walker.add({ x: v.x, y: v.y, obj: p, act: () => {
         this.misses++; this.dbox.actors[v.name] = p;
-        this.dbox.show([{ speaker: v.name, text: v.lines[n++ % v.lines.length], who: v.cfg }], () => this.maybeGuide());
+        const lines = told ? [v.lines[v.lines.length - 1]] : v.lines;
+        told = true;
+        this.dbox.show(lines.map(text => ({ speaker: v.name, text, who: v.cfg })), () => this.maybeGuide());
       } });
     });
     const at = STORY.oldManAt;

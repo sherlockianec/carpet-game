@@ -97,7 +97,7 @@ class BakeryGameScene extends BaseScene {
       "Pull each loaf while its ring is in the gold band - too soon is raw, too late is burnt.",
       "An oven that flares up bakes twice as fast. Watch it!",
       "Bake " + BAKE.goal + " good loaves in " + BAKE.time + " seconds. " + BAKE.maxRuined + " ruined and the batch starts over."
-    ], () => { this.running = true; this.ovens.forEach(o => this.say(o, "")); });
+    ], () => { this.running = true; });
     UI.hint(this, this.touchMode ? "Tap an oven: once to load, again to pull" : "Click an oven or press 1-5: once to load, again to pull");
   }
 
@@ -175,7 +175,6 @@ class BakeryGameScene extends BaseScene {
     this.time.delayedCall(700, () => this.dbox.show([{ speaker: "Baker", text }], () => this.restartWith({ fails: this.fails + 1 })));
   }
 
-  say(o, s) { void o; void s; }
 
   floatText(x, y, s, color) {
     const t = UI.title(this, x, y, s, { size: 44, color, stroke: "#2a1608", strokeW: 7 }).setDepth(8000);
