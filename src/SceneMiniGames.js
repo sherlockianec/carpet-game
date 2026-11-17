@@ -21,10 +21,13 @@
 // Shared little intro card: title, how-to lines, a Start button.
 function challengeIntro(scene, title, lines, onStart) {
   const dim = scene.add.rectangle(W / 2, H / 2, W, H, 0x05040c, 0.6).setDepth(9300).setInteractive();
-  const ph = 300 + lines.length * 62;
+  const texts = lines.map(l => UI.text(scene, 0, 0, l, { size: 34, color: "#f1e3c2", wrap: 980 }).setOrigin(0.5, 0));
+  const bodyH = texts.reduce((a, t) => a + t.height, 0) + 12 * (texts.length - 1);
+  const ph = Math.round(150 + bodyH + 140);
   const pk = Tex.make(scene, "intro_panel_" + ph, 1160, ph + 60, ctx => paintPanel(ctx, 30, 30, 1100, ph, {}));
   const kids = [scene.add.image(0, 0, pk), UI.title(scene, 0, -ph / 2 + 80, title, { size: 58, color: "#f8e3a6" })];
-  lines.forEach((l, i) => kids.push(UI.text(scene, 0, -ph / 2 + 170 + i * 62, l, { size: 34, color: "#f1e3c2", wrap: 980 })));
+  let ty = -ph / 2 + 140;
+  texts.forEach(t => { t.setPosition(0, ty); ty += t.height + 12; kids.push(t); });
   const c = scene.add.container(W / 2, H / 2, kids).setDepth(9301).setScale(0.9).setAlpha(0);
   scene.tweens.add({ targets: c, alpha: 1, scale: 1, duration: 300, ease: "Back.easeOut" });
   let done = false;
@@ -96,7 +99,7 @@ class BakeryGameScene extends BaseScene {
       this.touchMode ? "Tap an empty oven to slap in a round of dough." : "Click an empty oven (or press 1-5) to slap in a round of dough.",
       "Pull each loaf while its ring is in the gold band - too soon is raw, too late is burnt.",
       "An oven that flares up bakes twice as fast. Watch it!",
-      "Bake " + BAKE.goal + " good loaves in " + BAKE.time + " seconds. " + BAKE.maxRuined + " ruined and the batch starts over."
+      tf("Bake {goal} good loaves in {time} seconds. {ruined} ruined and the batch starts over.", { goal: BAKE.goal, time: BAKE.time, ruined: BAKE.maxRuined })
     ], () => { this.running = true; });
     UI.hint(this, this.touchMode ? "Tap an oven: once to load, again to pull" : "Click an oven or press 1-5: once to load, again to pull");
   }
@@ -183,7 +186,7 @@ class BakeryGameScene extends BaseScene {
 
   updateScore() {
     const s = Math.max(0, Math.ceil(this.timeLeft / 1000));
-    this.scoreTxt.textObj.setText("Good loaves  " + this.good + " / " + BAKE.goal + "      Ruined  " + this.ruined + " / " + BAKE.maxRuined + "      " + Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0"));
+    this.scoreTxt.setLabel(tf("Good loaves  {good} / {goal}      Ruined  {ruined} / {max}      {time}", { good: this.good, goal: BAKE.goal, ruined: this.ruined, max: BAKE.maxRuined, time: Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0") }));
     this.scoreTxt.textObj.setColor(s <= 15 && this.running ? "#ff9a7a" : "#f8e3a6");
   }
 
@@ -245,8 +248,8 @@ class BakeryGameScene extends BaseScene {
 }
 
 // ============================================================ THE RIVER
-// The baker's weekly offering: a basket of bread set on a little reed raft
-// with a candle, pushed out onto the night river to drift away.
+// The baker's weekly offering: he brings the bread down to the river on his
+// cart, and it is set on the water to drift away.
 
 function paintRiverNight(ctx) {
   paintSky(ctx, W, 640, [[0, 0x060a20], [0.7, 0x1c2a58], [1, 0x34406a]]);
@@ -290,66 +293,80 @@ class RiverScene extends BaseScene {
     this.begin({ music: "lament", amb: "night" });
     addBackdrop(this, "river_bg", ctx => paintRiverNight(ctx));
     // the moon's path on the water, shimmering
-    this.shimmer = [];
     for (let i = 0; i < 16; i++) {
       const s = this.add.image(1360 + (Math.random() - 0.5) * 60, 640 + i * 14, "fx-streak").setTint(0xdfe8ff).setAlpha(0.5).setDepth(1).setBlendMode(Phaser.BlendModes.ADD);
       s.setDisplaySize(60 + Math.random() * 120 + i * 8, 4);
       this.tweens.add({ targets: s, alpha: 0.15, x: s.x + (Math.random() - 0.5) * 50, duration: 700 + Math.random() * 900, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-      this.shimmer.push(s);
     }
     // gentle current lines
     for (let i = 0; i < 18; i++) {
-      const s = this.add.image(Math.random() * W, 700 + Math.random() * 160, "fx-streak").setTint(0x8aa8e0).setAlpha(0.22).setDepth(1);
+      const s = this.add.image(Math.random() * W, 700 + Math.random() * 140, "fx-streak").setTint(0x8aa8e0).setAlpha(0.22).setDepth(1);
       s.setDisplaySize(80 + Math.random() * 120, 3);
       this.tweens.add({ targets: s, x: s.x + 300, duration: 7000 + Math.random() * 4000, repeat: -1, onRepeat: () => { s.x = Math.random() * W - 300; } });
     }
     // reeds in front, swaying
-    [[120, 900], [380, 940], [1250, 920], [1560, 900], [1820, 940]].forEach((p, i) => {
+    [[120, 900], [1250, 920], [1560, 900], [1820, 940]].forEach((p, i) => {
       const k = Tex.make(this, "reeds" + i, 200, 220, ctx => paintReeds(ctx, 200, 220, "rd" + i));
       const im = this.add.image(p[0], p[1] + 20, k).setOrigin(0.5, 1).setDepth(2000 + p[1]);
       this.tweens.add({ targets: im, angle: 2.5, duration: 1800 + i * 200, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
     });
     ambientParticles(this, "fireflies", { area: { x: 0, y: 560, w: W, h: 380 }, freq: 260 });
 
-    // the raft: reeds lashed together, the bread wrapped in cloth, a candle
-    const rk = Tex.make(this, "bread_raft", 240, 170, (c) => {
-      for (let i = 0; i < 9; i++) { pRR(c, 20, 118 + i * 3.2 - 12, 200, 9, 4.5); fillC(c, i % 2 ? 0xb89a5a : 0xa88a4a); c.fill(); strokeC(c, 0x4a3a1e, 1.2); c.stroke(); }
-      strokeC(c, 0x6a4a24, 2.4); [60, 120, 180].forEach(x => { c.beginPath(); c.moveTo(x, 104); c.lineTo(x + 4, 140); c.stroke(); });
-      c.beginPath(); c.moveTo(56, 108); c.lineTo(184, 108); c.lineTo(168, 64); c.lineTo(72, 64); c.closePath();
-      c.fillStyle = gradV(c, 64, 108, [[0, 0xc79a5c], [1, 0x7a5432]]); c.fill(); strokeC(c, 0x3a2414, 2); c.stroke();
-      for (let i = 0; i < 4; i++) paintLoaf(c, 84 + i * 24, 62 - (i % 2) * 6, 18, 0.6);
-      c.beginPath(); c.moveTo(66, 70); c.quadraticCurveTo(120, 40, 176, 70); c.lineTo(170, 80); c.quadraticCurveTo(120, 60, 72, 80); c.closePath();
-      c.fillStyle = patS(c, tileIkat([0x8e2f2f, PAL.gold, 0x1c4e80, PAL.cream], "raft"), 0.35); c.fill(); strokeC(c, 0x3a1414, 1.4); c.stroke();
-      pRR(c, 192, 76, 12, 30, 3); fillC(c, 0xf2ead8); c.fill(); strokeC(c, 0x8a7a5a, 1.2); c.stroke();
+    // the baker's arava, loaded with the week's bread
+    const cartKey = Tex.make(this, "river_cart", 440, 300, (c) => { c.translate(220, 270); paintCart(c, 0, 0, { load: "bread" }); });
+    const cart = this.add.image(-260, 930, cartKey).setOrigin(0.5, 270 / 300).setScale(0.78).setDepth(930).setTint(0xc0c6e8);
+    // the bread itself, wrapped in a cloth and tied, to go into the water
+    const bundleKey = Tex.make(this, "bread_bundle", 160, 110, (c) => {
+      softEllipse(c, 80, 92, 64, 10, 0x000000, 0.3);
+      c.beginPath(); c.moveTo(20, 86); c.quadraticCurveTo(24, 40, 80, 34); c.quadraticCurveTo(136, 40, 140, 86); c.quadraticCurveTo(80, 98, 20, 86); c.closePath();
+      c.fillStyle = patS(c, tileIkat([0x8e2f2f, PAL.gold, 0x1c4e80, PAL.cream], "bundle"), 0.4); c.fill();
+      c.fillStyle = gradV(c, 34, 96, [[0, 0xffffff, 0.12], [1, 0x000000, 0.35]]); c.fill();
+      strokeC(c, 0x3a1414, 2); c.stroke();
+      paintLoaf(c, 62, 40, 22, 0.55); paintLoaf(c, 96, 36, 22, 0.55); paintLoaf(c, 80, 26, 20, 0.55);
+      [[60, 20], [100, 20]].forEach(p => { c.beginPath(); c.moveTo(80, 34); c.quadraticCurveTo(p[0], p[1] - 6, p[0] + (p[0] < 80 ? -8 : 8), p[1] + 6); c.lineTo(80, 38); c.closePath(); fillC(c, 0x8e2f2f); c.fill(); strokeC(c, 0x3a1414, 1.4); c.stroke(); });
+      pEll(c, 80, 36, 7, 5); fillC(c, 0xa83a3a); c.fill(); c.stroke();
     });
-    const baker = makePerson(this, 520, 930, STORY.cast["Baker"]).setDepth(930).setPerspective(1.1).tint(0xb8c0e8);
-    const hero = makePerson(this, 300, 960, HERO).setDepth(960).setPerspective(1.12).tint(0xb8c0e8);
-    const raft = this.add.image(hero.x + 80, hero.y - 90, rk).setDepth(965).setScale(0.75).setTint(0xd8dcf0);
-    const flame = addGlow(this, 0, 0, 120, 0xffc060, 0.8).setDepth(966);
-    this.tweens.add({ targets: flame, alpha: 0.5, duration: 140, yoyo: true, repeat: -1 });
-    const sync = () => flame.setPosition(raft.x + (198 - 120) * raft.scaleX, raft.y + (70 - 85) * raft.scaleY);
-    this.onUpdate(sync); sync();
+    const baker = makePerson(this, -60, 935, STORY.cast["Baker"]).setDepth(935).setPerspective(1.1).tint(0xb8c0e8);
+    const hero = makePerson(this, -180, 975, HERO).setDepth(975).setPerspective(1.12).tint(0xb8c0e8);
     addVignette(this, 0.95);
     this.dbox = new DialogueBox(this);
     this.dbox.actors = { "Baker": baker, "You": hero };
 
-    // walk down to the steps together, set it on the water, let it go
-    [hero, baker].forEach(p => { p.moving = true; });
-    this.tweens.add({ targets: baker, x: 820, y: 880, duration: 2200, ease: "Sine.easeInOut", onComplete: () => { baker.moving = false; baker.setFacing(1); } });
-    this.tweens.add({ targets: [hero, raft], x: "+=380", duration: 2200, ease: "Sine.easeInOut", onComplete: () => {
+    // 1. the baker pulls the cart along the bank to the top of the steps; you walk beside it
+    const CART_X = 360, BAKER_X = CART_X + 176 * 0.78 + 30;
+    [hero, baker].forEach(p => { p.moving = true; p.setFacing(1); });
+    this.tweens.add({ targets: cart, x: CART_X, duration: 2600, ease: "Sine.easeOut" });
+    this.tweens.add({ targets: baker, x: BAKER_X, duration: 2600, ease: "Sine.easeOut", onComplete: () => { baker.moving = false; baker.setFacing(-1); } });
+    this.tweens.add({ targets: hero, x: CART_X - 20, duration: 2600, ease: "Sine.easeOut", onComplete: () => {
       hero.moving = false;
-      this.time.delayedCall(400, () => {
-        this.tweens.add({ targets: raft, x: 760, y: 838, scale: 0.68, duration: 900, ease: "Sine.easeInOut", onComplete: () => {
-          Snd.play("splash");
-          const ring = this.add.image(760, 856, "fx-glow").setTint(0xbfd0ff).setDisplaySize(80, 16).setAlpha(0.6).setDepth(964).setBlendMode(Phaser.BlendModes.ADD);
-          this.tweens.add({ targets: ring, displayWidth: 300, displayHeight: 50, alpha: 0, duration: 1600, onComplete: () => ring.destroy() });
-          // the current takes it: out, across, and away into the dark, smaller and smaller
-          this.tweens.add({ targets: raft, x: 1500, y: 700, scale: 0.28, duration: 15000, ease: "Sine.easeIn" });
-          this.tweens.add({ targets: raft, angle: 4, duration: 1100, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
-          this.time.delayedCall(1600, () => this.dbox.show(STORY.bakery.outro, () => {
-            this.tweens.add({ targets: raft, alpha: 0, duration: 1500 });
-            this.time.delayedCall(1200, () => this.advance());
-          }));
+      Snd.play("creak");
+      // 2. you lift the bread from the cart...
+      const bundle = this.add.image(CART_X - 20, 835, bundleKey).setDepth(990).setScale(0.62).setTint(0xd8dcf0).setAlpha(0);
+      this.tweens.add({ targets: bundle, alpha: 1, y: hero.y - 112, duration: 500, delay: 300 });
+      this.time.delayedCall(900, () => {
+        // ...carry it down the steps to the water's edge (the baker stays with his cart)...
+        hero.moving = true;
+        this.tweens.add({ targets: hero, x: 760, y: 905, duration: 1900, ease: "Sine.easeInOut", onComplete: () => { hero.moving = false; hero.setDepth(905); } });
+        this.tweens.add({ targets: bundle, x: 760, y: 905 - 112, duration: 1900, ease: "Sine.easeInOut", onComplete: () => {
+          // 3. ...and set it on the water
+          hero.armLock = true;
+          this.tweens.add({ targets: hero.armR, rotation: -0.9, duration: 260, yoyo: true, onComplete: () => { hero.armLock = false; } });
+          this.tweens.add({ targets: bundle, x: 790, y: 842, scale: 0.58, duration: 650, ease: "Quad.easeIn", onComplete: () => {
+            Snd.play("splash");
+            bundle.setDepth(3);
+            const ring = this.add.image(790, 852, "fx-glow").setTint(0xbfd0ff).setDisplaySize(80, 16).setAlpha(0.6).setDepth(2).setBlendMode(Phaser.BlendModes.ADD);
+            this.tweens.add({ targets: ring, displayWidth: 320, displayHeight: 52, alpha: 0, duration: 1700, onComplete: () => ring.destroy() });
+            // moonlight catches it as the current carries it away
+            const glint = addGlow(this, 790, 842, 150, 0xdfe8ff, 0.35).setDepth(2);
+            this.onUpdate(() => { if (bundle.active) glint.setPosition(bundle.x, bundle.y + 4).setDisplaySize(150 * bundle.scale / 0.58, 90 * bundle.scale / 0.58); });
+            this.tweens.add({ targets: bundle, x: 1480, y: 690, scale: 0.2, duration: 16000, ease: "Sine.easeIn" });
+            this.tweens.add({ targets: bundle, angle: 5, duration: 1200, yoyo: true, repeat: -1, ease: "Sine.easeInOut" });
+            hero.setFacing(1);
+            this.time.delayedCall(1700, () => this.dbox.show(STORY.bakery.outro, () => {
+              this.tweens.add({ targets: [bundle, glint], alpha: 0, duration: 1500 });
+              this.time.delayedCall(1200, () => this.advance());
+            }));
+          } });
         } });
       });
     } });
@@ -495,13 +512,12 @@ class SaddlerGameScene extends BaseScene {
 
     this.timerTxt = UI.pill(this, W / 2, 140, "", { minW: 240, size: 40, h: 76, padX: 90, gold: true, color: "#f8e3a6", font: FONT_T });
     this.timerTxt.textObj.setText("1:40");
-    this.countTxt = UI.text(this, W / 2, 205, "0 / " + SADDLE_PARTS.length + " pieces", { size: 30, color: "#f1e3c2" }).setDepth(8900);
+    this.countTxt = UI.text(this, W / 2, 205, tf("{n} / {total} pieces", { n: 0, total: SADDLE_PARTS.length }), { size: 30, color: "#f1e3c2" }).setDepth(8900);
     addVignette(this, 0.55);
     challengeIntro(this, "Build the Saddle", [
       "Drag each piece onto its place on the stand.",
-      "Saddles are built in layers - a piece only fits",
-      "once the piece beneath it is in place.",
-      "Wrong place: lose 4 seconds. You have " + SADDLE_TIME + " seconds."
+      "Saddles are built in layers - a piece only fits once the piece beneath it is in place.",
+      tf("Wrong place: lose 4 seconds. You have {n} seconds.", { n: SADDLE_TIME })
     ], () => { this.running = true; });
   }
 
@@ -519,7 +535,7 @@ class SaddlerGameScene extends BaseScene {
       if (!this.ready(p)) {
         const missing = SADDLE_PARTS.find(q => p.needs.includes(q.key) && !this.placed[q.key]);
         Snd.play("nope"); back();
-        this.say("The " + p.name + " sits on the " + missing.name + ". Put that on first.");
+        this.say(tf("The {part} sits on the {other}. Put that on first.", { part: tr(p.name), other: tr(missing.name) }));
         return;
       }
       this.placed[p.key] = true;
@@ -532,7 +548,7 @@ class SaddlerGameScene extends BaseScene {
       const sp = this.add.particles(tx, ty, "fx-spark", { speed: { min: 60, max: 220 }, scale: { start: 0.4, end: 0 }, lifespan: 500, tint: [0xffe9a8], blendMode: "ADD", emitting: false }).setDepth(3000);
       sp.explode(14);
       const n = Object.keys(this.placed).length;
-      this.countTxt.setText(n + " / " + SADDLE_PARTS.length + " pieces");
+      this.countTxt.setText(tf("{n} / {total} pieces", { n, total: SADDLE_PARTS.length }));
       if (n === SADDLE_PARTS.length) { this.running = false; this.time.delayedCall(500, () => this.win()); }
       return;
     }
@@ -541,7 +557,7 @@ class SaddlerGameScene extends BaseScene {
     if (other) {
       this.timeLeft -= 4000;
       Snd.play("nope"); this.cameras.main.shake(100, 0.004);
-      this.say("No - that's where the " + other.name + " goes.");
+      this.say(tf("No - that's where the {part} goes.", { part: tr(other.name) }));
     }
     back();
   }
@@ -588,7 +604,7 @@ class SaddlerGameScene extends BaseScene {
 // fast; let it blaze and the dish burns.
 const INGREDIENTS = ["rice", "carrot", "ycarrot", "onion", "garlic", "lamb", "beef", "chickpeas", "raisins", "quince", "tomato", "pepper", "gpepper", "dough", "herbs", "cumin", "oil", "egg"];
 const ING_NAMES = { ycarrot: "yellow carrot", gpepper: "green pepper", pepper: "red pepper", chickpeas: "chickpeas", oil: "cotton oil" };
-const ingName = k => ING_NAMES[k] || k;
+const ingName = k => tr(ING_NAMES[k] || k);
 const DISHES = [
   { name: "Plov", items: ["oil", "onion", "lamb", "carrot", "ycarrot", "cumin", "rice"] },
   { name: "Shurpa", items: ["lamb", "onion", "carrot", "tomato", "pepper", "herbs"] },
@@ -743,15 +759,15 @@ class KitchenGameScene extends BaseScene {
     this.served = 0; this.missed = 0; this.round = 0; this.total = 10; this.need = 8; this.running = false; this.heat = HEAT.start;
     const r = rng("menu" + this.fails);
     this.menu = DISHES.slice().sort(() => r() - 0.5);
-    this.scoreTxt = UI.pill(this, 1500, 140, "", { minW: 520, size: 34, h: 70, padX: 70, gold: true, color: "#f8e3a6", font: FONT_T });
+    this.scoreTxt = UI.pill(this, 1480, 140, "", { minW: 640, size: 34, h: 70, padX: 70, gold: true, color: "#f8e3a6", font: FONT_T });
     this.updateScore();
     addVignette(this, 0.5);
 
     const start = () => challengeIntro(this, "The King's Dinner", [
       "Each ticket is a dish. Put its ingredients in the kazan IN ORDER.",
-      "Point at a bowl to see what's in it - they move after every dish.",
-      (this.touchMode ? "Tap the bellows" : "Click the bellows or press F") + " to keep the fire in the green.",
-      "Too cold or too hot and time runs out twice as fast. Serve " + this.need + " of " + this.total + "."
+      this.touchMode ? "The bowls move after every dish." : "Point at a bowl to see what's in it - they move after every dish.",
+      this.touchMode ? "Tap the bellows to keep the fire in the green." : "Click the bellows or press F to keep the fire in the green.",
+      tf("Too cold or too hot and time runs out twice as fast. Serve {need} of {total}.", { need: this.need, total: this.total })
     ], () => { this.running = true; this.nextOrder(); });
     if (this.sub === 0 && !this.fails) this.time.delayedCall(500, () => this.dbox.show(STORY.kitchen.intro, () => { GameFlow.setSub(1); start(); }));
     else start();
@@ -767,7 +783,7 @@ class KitchenGameScene extends BaseScene {
     });
   }
 
-  updateScore() { this.scoreTxt.textObj.setText("Served " + this.served + " / " + this.need + "    Spoiled " + this.missed + " / " + (this.total - this.need)); }
+  updateScore() { this.scoreTxt.setLabel(tf("Served {served} / {need}    Spoiled {missed} / {max}", { served: this.served, need: this.need, missed: this.missed, max: this.total - this.need })); }
 
   nextOrder() {
     if (this.round >= this.total) { this.finish(); return; }
@@ -775,7 +791,7 @@ class KitchenGameScene extends BaseScene {
     this.round++;
     this.dish = dish; this.step = 0;
     this.ticketIcons.forEach(o => o.destroy()); this.ticketIcons = [];
-    this.dishTxt.setText(dish.name + "  (" + this.round + "/" + this.total + ")");
+    this.dishTxt.setText(tf("{dish}  ({n}/{total})", { dish: tr(dish.name), n: this.round, total: this.total }));
     const n = dish.items.length, gap = Math.min(96, 640 / n);
     dish.items.forEach((k, i) => {
       const x = (i - (n - 1) / 2) * gap;
@@ -838,15 +854,15 @@ class KitchenGameScene extends BaseScene {
       const t = this.ticketIcons.find(o => o.k === k && !o.tick.visible); if (t) t.tick.setVisible(true);
       this.markNext();
       if (this.step >= this.dish.items.length) this.serve(true);
-    } else if (this.dish.items.indexOf(k) >= this.step) this.mistake("Not yet - the " + ingName(want) + " goes in first!");
-    else if (this.dish.items.indexOf(k) >= 0) this.mistake("The " + ingName(k) + " is already in!");
-    else this.mistake(ingName(k)[0].toUpperCase() + ingName(k).slice(1) + " doesn't go in " + this.dish.name + "!");
+    } else if (this.dish.items.indexOf(k) >= this.step) this.mistake(tf("Not yet - the {item} goes in first!", { item: ingName(want) }));
+    else if (this.dish.items.indexOf(k) >= 0) this.mistake(capFirst(tf("The {item} is already in!", { item: ingName(k) })));
+    else this.mistake(capFirst(tf("{item} doesn't go in {dish}!", { item: ingName(k), dish: tr(this.dish.name) })));
   }
 
   serve(ok, why) {
     const d = this.dish; this.dish = null;
-    if (ok) { this.served++; Snd.play("success"); UI.toast(this, d.name + " served!", { y: 600, hold: 700 }); }
-    else { this.missed++; Snd.play("fail"); UI.toast(this, why || ("Too slow - the " + d.name + " is spoiled"), { y: 600, hold: 1000 }); }
+    if (ok) { this.served++; Snd.play("success"); UI.toast(this, tf("{dish} served!", { dish: tr(d.name) }), { y: 600, hold: 700 }); }
+    else { this.missed++; Snd.play("fail"); UI.toast(this, why || tf("Too slow - the {dish} is spoiled", { dish: tr(d.name) }), { y: 600, hold: 1000 }); }
     this.updateScore();
     if (this.missed > this.total - this.need) this.round = this.total;
     this.tweens.add({ targets: this.ticket, alpha: 0, x: ok ? 1400 : 470, y: ok ? 300 : 480, duration: 300, onComplete: () => {
@@ -867,7 +883,7 @@ class KitchenGameScene extends BaseScene {
     g.fillStyle(0xffffff, 1).fillTriangle(x - w / 2 - 16, yy - 9, x - w / 2 - 16, yy + 9, x - w / 2 - 2, yy);
     g.lineStyle(3, PAL.gold, 0.9).strokeRoundedRect(x - w / 2 - 6, y0 - 6, w + 12, h + 12, 10);
     const state = this.heat < HEAT.lo ? "too cold" : (this.heat > HEAT.hi ? "too hot!" : "heat");
-    this.heatTxt.setText(state).setColor(this.heat < HEAT.lo ? "#9ad0ff" : (this.heat > HEAT.hi ? "#ff8a6a" : "#bff0a0")).setPosition(x, y0 - 34);
+    this.heatTxt.setText(tr(state)).setColor(this.heat < HEAT.lo ? "#9ad0ff" : (this.heat > HEAT.hi ? "#ff8a6a" : "#bff0a0")).setPosition(x, y0 - 34);
   }
 
   tick(time, d) {
@@ -881,7 +897,7 @@ class KitchenGameScene extends BaseScene {
     this.flames.setFrequency(this.heat < HEAT.lo ? 120 : (this.heat > HEAT.hi ? 14 : 30));
     this.drawGauge();
     if (!this.dish) return;
-    if (this.heat >= HEAT.burn) { this.heat = HEAT.hi - 10; this.serve(false, "The fire's roaring - the " + this.dish.name + " is burnt!"); return; }
+    if (this.heat >= HEAT.burn) { this.heat = HEAT.hi - 10; this.serve(false, tf("The fire's roaring - the {dish} is burnt!", { dish: tr(this.dish.name) })); return; }
     this.timeLeft -= d * (off ? 2.2 : 1);
     const f = clamp(this.timeLeft / this.timeTotal, 0, 1);
     this.timeBar.width = 620 * f;

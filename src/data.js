@@ -38,7 +38,7 @@ const STORY = {
 
   villagers: [
     { x: 500, y: 820, name: "Water-Carrier", cfg: { robe: 0x7a5a3a, head: "cap", trim: 0xb5553a, holding: "jug" }, lines: ["Mind the well on your way past - the rope's gone thin again.", "There's an old man under the big apricot tree, east of the cart. Been sitting there since dawn, asking after you."] },
-    { x: 900, y: 890, name: "Neighbour", cfg: { body: "dress", robe: 0x5a7a5a, female: true, head: "scarf", headColor: 0xb2283a, vest: 0x2a3a2a }, lines: ["Haven't seen you around much. Off somewhere?", "A traveller in a white kalpak asked which house was yours. Strange eyes, that one."] },
+    { x: 900, y: 890, name: "Auntie Next Door", cfg: { body: "dress", robe: 0x5a7a5a, female: true, head: "scarf", headColor: 0xb2283a, vest: 0x2a3a2a }, lines: ["Haven't seen you around much. Off somewhere?", "A traveller in a white kalpak asked which house was yours. Strange eyes, that one."] },
     { x: 1240, y: 960, name: "Child", cfg: { robe: 0x8a6a9a, child: true, head: "none", mood: "kind" }, lines: ["Sharp eyes, you. Everyone says so!", "The old man under the biggest tree gave me a dried apricot. Go see him!"] },
     { x: 1400, y: 900, name: "Grandmother", cfg: { body: "dress", robe: 0x6a5a6a, female: true, head: "scarf", headColor: 0xf6ecd8, elder: true, mood: "kind" }, lines: ["Sit, sit. Have some tea.", "Your mother says you're too clever for this village. Maybe she's right."] },
     { x: 1620, y: 820, name: "Farmer", cfg: { robe: 0x6a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full", holding: "basket" }, lines: ["Good harvest this year. The apricots nearly broke the branches.", "A stranger by the biggest tree is waiting for someone. Not me, I asked."] },

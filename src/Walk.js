@@ -193,7 +193,7 @@ class Walker {
       const hy = best.head !== undefined ? best.head : (best.obj && best.obj.h ? best.obj.h * (best.obj.pk || 1) + 70 : 180);
       this.prompt.setPosition(best.x, best.y - hy).setVisible(true);
       this.promptKeyTxt.setText(s.touchMode ? "☝" : "E");
-      this.promptLbl.setText(best.label || "Talk");
+      this.promptLbl.setText(tr(best.label || "Talk"));
       const fresh = time - this.busyAt > 260;
       if (fresh && (Phaser.Input.Keyboard.JustDown(k.e) || Phaser.Input.Keyboard.JustDown(k.space) || Phaser.Input.Keyboard.JustDown(k.enter))) {
         p.face(best.x);

@@ -5,6 +5,11 @@
 
 function bootGame() {
   Save.load();
+  I18N.set(Save.data.lang || I18N.detect());
+  try {
+    const bs = document.querySelector("#boot .s"); if (bs) bs.textContent = tr("unrolling the carpet…");
+    const rt = document.getElementById("rotate"); if (rt) rt.innerHTML = tr("Turn your phone sideways<br>to ride the carpet.");
+  } catch (e) { /* ignore */ }
   Snd.sfxOn = Save.data.sfx !== false;
   Snd.musicOn = Save.data.music !== false;
   if (Dev.params.mute) { Snd.sfxOn = false; Snd.musicOn = false; }
@@ -55,7 +60,10 @@ window.addEventListener("load", () => {
     if (document.fonts && document.fonts.load) {
       Promise.all([
         document.fonts.load('700 40px "El Messiri"'), document.fonts.load('600 40px "El Messiri"'),
-        document.fonts.load('400 40px Alegreya'), document.fonts.load('italic 400 40px Alegreya'), document.fonts.load('700 40px Alegreya')
+        document.fonts.load('400 40px Alegreya'), document.fonts.load('italic 400 40px Alegreya'), document.fonts.load('700 40px Alegreya'),
+        // the Cyrillic halves of both families, for Russian
+        document.fonts.load('700 40px "El Messiri"', 'Жж'), document.fonts.load('600 40px "El Messiri"', 'Жж'),
+        document.fonts.load('400 40px Alegreya', 'Жж'), document.fonts.load('italic 400 40px Alegreya', 'Жж'), document.fonts.load('700 40px Alegreya', 'Жж')
       ]).then(go, go);
       setTimeout(go, 2500);            // offline: don't wait forever
     } else go();

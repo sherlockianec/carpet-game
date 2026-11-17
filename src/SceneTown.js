@@ -226,7 +226,7 @@ function placeTownProp(scene, p, tint, lights) {
     addProp(scene, x, y, 360, 330, c => paintStall(c, 0, 0, { goods: "leather", cloth: o.cloth, cloth2: 0xe8d4a8, w: 250 }), T); scene.colliders.push({ x, y, rx: 130, ry: 24 });
     addProp(scene, x + 230, y + 40, 280, 220, c => paintSaddleRack(c, 0, 0), T); scene.colliders.push({ x: x + 230, y: y + 40, rx: 100, ry: 18 });
     if (o.broken) addProp(scene, x + 80, y + 150, 280, 100, c => paintBrokenSaddle(c, 0, 0), Object.assign({}, T, { depthOff: -60 }));
-  } else if (kind === "horse") { P(460, 380, c => paintHorse(c, 0, 0, 1.0, o), { pad: 30 }); col(160, 26); }
+  } else if (kind === "horse") { const hs = o.scale || 0.6; P(Math.ceil(460 * hs) + 20, Math.ceil(380 * hs) + 30, c => paintHorse(c, 0, 0, hs, o), { pad: 24 }); col(100 * hs / 0.6, 18); }
   else if (kind === "trough") {
     P(240, 120, (c) => {
       softEllipse(c, 4, 2, 100, 12, 0x000000, 0.3);

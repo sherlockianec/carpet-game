@@ -6,6 +6,9 @@ errands. Built with [Phaser 3](https://phaser.io). No build step and no asset fi
 every picture is painted in code at runtime and every sound — including the music on
 dutar, ney and doira — is synthesised in the browser.
 
+**Languages:** English, Russian and Uzbek — pick one on the title screen (the first visit follows
+the browser's language).
+
 **Play time:** roughly 60–90 minutes. Progress saves automatically; the title screen
 offers **Continue**.
 
@@ -76,6 +79,9 @@ Qahraton meant it as a goodbye.
 index.html               loads Phaser + every script, in order
 phaser.min.js            Phaser 3.90, vendored (no CDN)
 src/core.js              stage size, palette, seeded randomness, texture pool, save data, story flow, BaseScene
+src/i18n.js              tr()/tf(): every on-screen string is looked up in the chosen language as it is drawn
+src/lang-ru.js           Russian, keyed by the English text
+src/lang-uz.js           Uzbek (Latin script), keyed by the English text
 src/data.js              ALL story text, what every character looks like, flight tuning, chapter order
 src/audio.js             synthesised sound effects, ambience and the music sequencer
 src/paint.js             Canvas brush helpers: gradients, paths, grain, ikat/tile patterns, panels
@@ -93,6 +99,10 @@ src/SceneMiniGames.js    bakery, the river, saddler, kitchen
 src/SceneDuel.js         the flashback fight
 src/main.js              Phaser config; waits for fonts, then boots
 ```
+
+Text is written in English in the code and in `src/data.js`; when you change or add a line,
+add the same English line with its translation to `src/lang-ru.js` and `src/lang-uz.js`
+(a missing entry simply shows in English).
 
 To edit dialogue, change how someone looks, retune a flight (`STORY.flights`: speed,
 length, gap size) or reorder chapters, you generally only touch `src/data.js`.

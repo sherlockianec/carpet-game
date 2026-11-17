@@ -57,6 +57,14 @@ class TitleScene extends BaseScene {
 
     this.soundBtn = UI.iconButton(this, W - 62, 60, UI.soundIcon(), () => { UI.toggleSound(this); this.soundBtn.setIcon(UI.soundIcon()); });
     UI.iconButton(this, W - 150, 60, "full", () => { try { this.scale.toggleFullscreen(); } catch (e) { /* ignore */ } });
+    // language: English · Русский · Oʻzbekcha (remembered with the save)
+    LANGS.forEach((l, i) => {
+      UI.button(this, 150 + i * 250, 62, l.name, () => {
+        if (I18N.lang === l.id || this.leaving) return;
+        I18N.set(l.id); Save.data.lang = l.id; Save.write();
+        this.scene.restart();
+      }, { w: 230, h: 62, size: 26, primary: I18N.lang === l.id, depth: 200, raw: true });
+    });
     UI.text(this, W / 2, H - 46, this.touchMode ? "Best played in landscape · headphones recommended" : "Move: WASD / arrows · Talk: E · Fly: hold Space · Pause: Esc · Sound: M",
       { size: 26, color: "#8a80aa" }).setDepth(100);
   }

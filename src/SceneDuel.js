@@ -105,7 +105,7 @@ class DuelScene extends BaseScene {
   // ---------- stages ----------
   startStage() {
     const st = this.stage;
-    this.stageTxt.textObj.setText(st < 2 ? "Attendants · wave " + (st + 1) + " of 2" : "Qahraton");
+    this.stageTxt.setLabel(st < 2 ? tf("Attendants · wave {n} of 2", { n: st + 1 }) : tr("Qahraton"));
     if (st === 0) { this.spawn(2); }
     else if (st === 1) { this.spawn(3); }
     else {

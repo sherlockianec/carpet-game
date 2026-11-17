@@ -112,7 +112,7 @@ const Tex = {
 
 const Save = {
   KEY: "uchar-gilam-save-v2",
-  data: { index: -1, sub: 0, clues: {}, hasCarpet: false, music: true, sfx: true, finished: false },
+  data: { index: -1, sub: 0, clues: {}, hasCarpet: false, music: true, sfx: true, finished: false, lang: null },
   load() {
     try {
       const raw = window.localStorage.getItem(this.KEY);
@@ -194,7 +194,8 @@ const GameFlow = {
     this.sub = sub || 0;
     this.launch(scene);
   },
-  chapterName(index) {
+  chapterName(index) { return tr(this.chapterKey(index)); },
+  chapterKey(index) {
     if (index <= 0) return "Prologue";
     if (index === 1) return "The Village";
     if (index <= 3) return "The Kiln at the City's Edge";

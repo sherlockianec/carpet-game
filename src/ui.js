@@ -78,6 +78,7 @@ const UI = {
   // ---------- text ----------
   text(scene, x, y, str, o) {
     o = o || {};
+    if (!o.raw) str = tr(str);
     const style = {
       fontFamily: o.font || FONT_B, fontSize: (o.size || 32) + "px", color: o.color || "#f6ecd8",
       fontStyle: o.style || "normal", align: o.align || "center"
@@ -112,10 +113,13 @@ const UI = {
       pStar(ctx, X + 34, Y + h / 2, 4, 8, 3, 0); ctx.fill(); pStar(ctx, X + w - 34, Y + h / 2, 4, 8, 3, 0); ctx.fill();
     }, true);
     const bg = scene.add.image(0, 0, key);
-    const txt = this.title(scene, 0, -1, label, { size: o.size || 36, color: prim ? "#2a1a08" : "#f4d58a", shadow: !prim });
+    const txt = this.title(scene, 0, -1, label, { size: o.size || 36, color: prim ? "#2a1a08" : "#f4d58a", shadow: !prim, raw: o.raw });
+    const fit = () => { txt.setScale(1); if (txt.width > w - 84) txt.setScale((w - 84) / txt.width); };
+    fit();
     const c = scene.add.container(x, y, [bg, txt]).setDepth(o.depth === undefined ? 100 : o.depth);
     c.setSize(w, h).setInteractive({ useHandCursor: true });
     c.isHud = true; c.label = txt;
+    c.setLabel = (s) => { txt.setText(tr(s)); fit(); return c; };
     c.on("pointerover", () => { scene.tweens.add({ targets: c, scale: 1.05, duration: 110 }); Snd.play("hover"); });
     c.on("pointerout", () => scene.tweens.add({ targets: c, scale: 1, duration: 110 }));
     c.on("pointerdown", () => { Snd.play("click"); onClick(); });
@@ -161,7 +165,9 @@ const UI = {
   pill(scene, x, y, str, o) {
     o = o || {};
     const t = this.text(scene, 0, 0, str, { size: o.size || 27, color: o.color || "#f1e3c2", style: o.style || "normal", shadow: false, font: o.font });
-    const w = Math.max(o.minW || 0, Math.ceil((t.width + (o.padX || 44)) / 20) * 20), h = o.h || 54;
+    const pad = o.padX || 44, room = (o.maxW || W - 160) - pad;
+    if (t.width > room) t.setScale(room / t.width);
+    const w = Math.max(o.minW || 0, Math.ceil((t.width * t.scaleX + pad) / 20) * 20), h = o.h || 54;
     const key = Tex.make(scene, "pill_" + w + "_" + h + (o.gold ? "g" : ""), w + 24, h + 24, (ctx) => {
       pRR(ctx, 12, 12, w, h, h / 2); fillC(ctx, 0x0e0b22, o.alpha === undefined ? 0.66 : o.alpha); ctx.fill();
       if (o.gold) { pRR(ctx, 13, 13, w - 2, h - 2, h / 2 - 1); strokeC(ctx, PAL.gold, 2, 0.85); ctx.stroke(); }
@@ -169,6 +175,7 @@ const UI = {
     const c = scene.add.container(x, y, [scene.add.image(0, 0, key), t]).setDepth(o.depth === undefined ? 8900 : o.depth);
     c.setScrollFactor(0, 0, true);
     c.textObj = t;
+    c.setLabel = (s) => { t.setScale(1).setText(tr(s)); if (t.width > w - pad) t.setScale((w - pad) / t.width); return c; };
     return c;
   },
   // Control hint along the bottom edge.
@@ -182,7 +189,8 @@ const UI = {
     if (scene._obj) scene._obj.destroy();
     if (!str) { scene._obj = null; return null; }
     const t = this.text(scene, 0, 0, str, { size: 29, color: "#f4d58a", ox: 0, shadow: false });
-    const w = Math.ceil((t.width + 104) / 20) * 20, h = 64;
+    if (t.width > 1150) t.setScale(1150 / t.width);
+    const w = Math.ceil((t.width * t.scaleX + 104) / 20) * 20, h = 64;
     const key = Tex.make(scene, "obj_" + w, w + 30, h + 30, (ctx) => {
       ctx.save(); ctx.shadowColor = "rgba(0,0,0,0.5)"; ctx.shadowBlur = 12; ctx.shadowOffsetY = 4;
       pRR(ctx, 15, 15, w, h, 14); ctx.fillStyle = gradV(ctx, 15, 15 + h, [[0, 0x241c4a, 0.93], [1, 0x120e2a, 0.93]]); ctx.fill(); ctx.restore();
@@ -203,9 +211,10 @@ const UI = {
     o = o || {};
     const y = o.y || 200;
     const tt = this.title(scene, 0, 0, title, { size: o.size || 66, color: "#f8e3a6", letterSpacing: 3 });
+    if (tt.width > W - 220) tt.setScale((W - 220) / tt.width);
     const kids = [tt];
     const rule = scene.add.graphics();
-    const rw = Math.max(260, tt.width * 0.72);
+    const rw = Math.max(260, tt.width * tt.scaleX * 0.72);
     rule.lineStyle(2, PAL.gold, 0.9);
     rule.lineBetween(-rw / 2, 50, -18, 50); rule.lineBetween(18, 50, rw / 2, 50);
     rule.fillStyle(PAL.gold, 1); rule.fillTriangle(-9, 50, 0, 41, 9, 50); rule.fillTriangle(-9, 50, 0, 59, 9, 50);
@@ -428,12 +437,20 @@ class DialogueBox {
     this.nameBg.setVisible(named); this.nameText.setVisible(named);
     if (named) {
       const nx = who ? 670 : 470;
-      this.nameBg.setPosition(nx, 782); this.nameText.setPosition(nx, 780).setText(l.speaker);
+      this.nameBg.setPosition(nx, 782); this.nameText.setPosition(nx, 780).setScale(1).setText(tr(l.speaker));
+      if (this.nameText.width > 400) this.nameText.setScale(400 / this.nameText.width);
     }
 
-    // Wrap once up front so words never jump lines while being written.
+    // Wrap once up front so words never jump lines while being written; a
+    // translation that would run past the box gets a slightly smaller font.
     this.body.setText("").setVisible(true);
-    this.full = this.body.getWrappedText(l.text || "").join("\n");
+    const maxLines = isLetter ? 7 : 4, txt = tr(l.text || "");
+    let lines = this.body.getWrappedText(txt);
+    for (let k = 0; k < 3 && lines.length > maxLines; k++) {
+      this.body.setFontSize(Math.round(parseInt(this.body.style.fontSize, 10) * 0.9) + "px");
+      lines = this.body.getWrappedText(txt);
+    }
+    this.full = lines.join("\n");
     this.shown = 0; this.acc = 0; this.typing = true;
     this.more.setVisible(false);
     this.voice = isLetter || isNarr ? 0 : 300 + (hashSeed(l.speaker) % 9) * 38;
@@ -502,8 +519,8 @@ class PauseScene extends Phaser.Scene {
     const sfx = add("", () => { Snd.setSfx(!Snd.sfxOn); Save.data.sfx = Snd.sfxOn; Save.write(); label(); Snd.play("click"); });
     const mus = add("", () => { Snd.setMusic(!Snd.musicOn); Save.data.music = Snd.musicOn; Save.write(); label(); });
     const label = () => {
-      sfx.label.setText("Sound: " + (Snd.sfxOn ? "On" : "Off"));
-      mus.label.setText("Music: " + (Snd.musicOn ? "On" : "Off"));
+      sfx.setLabel(tf("Sound: {state}", { state: tr(Snd.sfxOn ? "On" : "Off") }));
+      mus.setLabel(tf("Music: {state}", { state: tr(Snd.musicOn ? "On" : "Off") }));
       const sc = this.scene.get(this.from);
       if (sc && sc.hudSound && sc.hudSound.active) sc.hudSound.setIcon(UI.soundIcon());
     };
