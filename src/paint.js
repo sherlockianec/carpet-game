@@ -353,6 +353,11 @@ function makeCommonTextures(scene) {
     c.beginPath(); c.moveTo(70, 0); c.lineTo(150, 0); c.lineTo(220, 600); c.lineTo(0, 600); c.closePath(); c.fill();
   }, K);
   Tex.make(scene, "fx-white", 8, 8, (c) => { fillC(c, 0xffffff); c.fillRect(0, 0, 8, 8); }, K);
+  // white at the screen edges, clear in the middle: tinted red for "you were hit"
+  Tex.make(scene, "fx-edge", 480, 270, (c) => {
+    c.fillStyle = gradR(c, 240, 135, 90, 290, [[0, 0xffffff, 0], [0.55, 0xffffff, 0.12], [1, 0xffffff, 0.75]]);
+    c.fillRect(0, 0, 480, 270);
+  }, K);
 }
 
 // Convenience: a full-screen vignette on top of a scene.

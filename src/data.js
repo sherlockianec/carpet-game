@@ -37,11 +37,16 @@ const STORY = {
   ],
 
   villagers: [
-    { x: 330, y: 760, name: "Water-Carrier", cfg: { robe: 0x7a5a3a, head: "cap", trim: 0xb5553a, holding: "jug" }, lines: ["Mind the well on your way past - the rope's gone thin again.", "There's an old man by the apricot tree. Been sitting there since dawn, asking after you."] },
-    { x: 1540, y: 700, name: "Neighbour", cfg: { body: "dress", robe: 0x5a7a5a, female: true, head: "scarf", headColor: 0xb2283a, vest: 0x2a3a2a }, lines: ["Haven't seen you around much. Off somewhere?", "A traveller in a white kalpak asked which house was yours. Strange eyes, that one."] },
-    { x: 1370, y: 860, name: "Child", cfg: { robe: 0x8a6a9a, child: true, head: "none", mood: "kind" }, lines: ["Sharp eyes, you. Everyone says so!", "The old man under the tree gave me a dried apricot. Go see him!"] },
-    { x: 620, y: 950, name: "Farmer", cfg: { robe: 0x6a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full", holding: "basket" }, lines: ["Good harvest this year. The apricots nearly broke the branches.", "A stranger by the tree is waiting for someone. Not me, I asked."] }
+    { x: 500, y: 820, name: "Water-Carrier", cfg: { robe: 0x7a5a3a, head: "cap", trim: 0xb5553a, holding: "jug" }, lines: ["Mind the well on your way past - the rope's gone thin again.", "There's an old man under the big apricot tree, east of the cart. Been sitting there since dawn, asking after you."] },
+    { x: 900, y: 890, name: "Neighbour", cfg: { body: "dress", robe: 0x5a7a5a, female: true, head: "scarf", headColor: 0xb2283a, vest: 0x2a3a2a }, lines: ["Haven't seen you around much. Off somewhere?", "A traveller in a white kalpak asked which house was yours. Strange eyes, that one."] },
+    { x: 1240, y: 960, name: "Child", cfg: { robe: 0x8a6a9a, child: true, head: "none", mood: "kind" }, lines: ["Sharp eyes, you. Everyone says so!", "The old man under the biggest tree gave me a dried apricot. Go see him!"] },
+    { x: 1400, y: 900, name: "Grandmother", cfg: { body: "dress", robe: 0x6a5a6a, female: true, head: "scarf", headColor: 0xf6ecd8, elder: true, mood: "kind" }, lines: ["Sit, sit. Have some tea.", "Your mother says you're too clever for this village. Maybe she's right."] },
+    { x: 1620, y: 820, name: "Farmer", cfg: { robe: 0x6a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full", holding: "basket" }, lines: ["Good harvest this year. The apricots nearly broke the branches.", "A stranger by the biggest tree is waiting for someone. Not me, I asked."] },
+    { x: 1900, y: 900, name: "Shepherd", cfg: { robe: 0x7a6a4a, head: "kalpak", headColor: 0xf2ecdc, beard: "goatee", holding: "staff" }, lines: ["The flock's restless today. Something in the air.", "That old man came up the east road at dawn. Never seen him before."] },
+    { x: 2760, y: 900, name: "Smith's Boy", cfg: { body: "apron", robe: 0x6a4a3a, head: "cap", trim: 0x1f6f6f }, lines: ["Can't stop, the forge is hot!", "The stranger? Under the apricot, back west a little."] },
+    { x: 3080, y: 880, name: "Baker's Wife", cfg: { body: "dress", robe: 0x9a4a3a, female: true, head: "scarf", headColor: 0xd9a441, holding: "jug" }, lines: ["Bread's in the oven - don't tell my husband I stopped to talk.", "Under the apricot tree. You walked right past him."] }
   ],
+  oldManAt: { x: 2440, y: 880 },
 
   palace: [
     L("You", "I have come to ask for the Princess's hand."),
@@ -60,16 +65,23 @@ const STORY = {
   towns: {
 
     oven: {
-      title: "The Edge of a Distant City", sub: "the old kiln", env: "city", music: "bazaar",
+      title: "The Edge of a Distant City", sub: "the potters' quarter", env: "city", music: "bazaar",
       objective: "Find the couple who live in the old kiln",
+      crowd: 10, guideAfter: 6,
       spots: [
-        { x: 300, y: 720, name: "Neighbour", cfg: { robe: 0x7a5a3a, head: "doppi" }, miss: ["The old ones? Keep to themselves.", "Strange house. I've never once seen the door used."] },
-        { x: 560, y: 930, name: "Neighbour", cfg: { body: "dress", robe: 0x9a4a3a, female: true, head: "scarf", headColor: 0xd9a441 }, miss: ["Never seen them both outside at once.", "If you must ask someone, ask at the old kiln - east end of the square."] },
-        { x: 820, y: 690, name: "Water-Carrier", cfg: { robe: 0x6a8a7a, head: "cap", holding: "jug" }, miss: ["Heavy work, this. No time for gossip.", "Ask by the kiln - they've been here longer than me."] },
-        { x: 1060, y: 860, name: "Child", cfg: { robe: 0x8a6a9a, child: true, mood: "kind" }, miss: ["I'm not allowed to talk to strangers!", "Mama says the kiln people are sad, not scary."] },
-        { x: 1290, y: 700, name: "Cart-Man", cfg: { robe: 0x5a7a8a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["Move along, I've a delivery.", "Kiln's that way, if that's your business. The big clay dome."] },
-        { x: 380, y: 1000, name: "Weaver", cfg: { body: "dress", robe: 0x5a3a6a, female: true, head: "scarf", headColor: 0x2fb8ac, pattern: "ikat", robe2: 0xd9a441 }, miss: ["Fine thread, if you're buying.", "Not much use to a wanderer, I'd think."] },
-        { x: 1580, y: 840, name: "Oven-Keeper", target: true }
+        { x: 330, y: 760, name: "Neighbour", cfg: { robe: 0x7a5a3a, head: "doppi" }, miss: ["The old ones? Keep to themselves.", "Strange house, a kiln. I've never once seen them both outside it."] },
+        { x: 840, y: 905, name: "Water-Carrier", cfg: { robe: 0x6a8a7a, head: "cap", holding: "jug" }, miss: ["Heavy work, this. No time for gossip.", "The kilns run along the city's edge. One of them hasn't smoked in years."] },
+        { x: 1120, y: 865, name: "Potter", cfg: { body: "apron", robe: 0x8a5a3a, head: "wrap", headColor: 0xd9cdb4, beard: "full", build: 1.1 }, miss: ["This one? Fired every morning since my grandfather's day.", "You want the cold kiln. Keep going east - past the second chimney."] },
+        { x: 1450, y: 960, name: "Child", cfg: { robe: 0x8a6a9a, child: true, mood: "kind" }, miss: ["I'm not allowed to talk to strangers!", "The quiet kiln is scary at night. There's a little light inside."] },
+        { x: 1650, y: 905, name: "Old Man", face: 1, cfg: { robe: 0x5a4a3a, head: "turban", headColor: 0xe8dcc4, beard: "long", elder: true, mood: "kind" }, miss: ["A kiln? Do I look like I sleep in a kiln?", "They have one robe between them, those two. You'll know them by that."] },
+        { x: 1785, y: 910, name: "Old Woman", face: -1, cfg: { body: "dress", robe: 0x6a5a6a, female: true, head: "scarf", headColor: 0xf6ecd8, elder: true }, miss: ["We live behind the dyer's, dear. Not in any kiln.", "They had a son, once. Nobody says his name any more."] },
+        { x: 1960, y: 860, name: "Potter", cfg: { body: "apron", robe: 0x7a4a2a, head: "doppi", beard: "goatee", build: 1.05 }, miss: ["Mind the heat, stranger.", "Further east. The one with the cracked dome and weeds round the door."] },
+        { x: 2290, y: 800, name: "Cart-Man", cfg: { robe: 0x5a7a8a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["Move along, I've a delivery.", "Kiln's that way, if that's your business. No smoke - you can't miss it."] },
+        { x: 2420, y: 920, name: "Weaver", cfg: { body: "dress", robe: 0x5a3a6a, female: true, head: "scarf", headColor: 0x2fb8ac, pattern: "ikat", robe2: 0xd9a441 }, miss: ["Fine thread, if you're buying.", "Not much use to a wanderer, I'd think."] },
+        { x: 3080, y: 900, name: "Brick-Maker", cfg: { body: "apron", robe: 0x9a6a4a, head: "cap", trim: 0x8e2f2f, beard: "mustache" }, miss: ["Bricks don't talk back. That's why I like them.", "West of here, the cold one. I'd wager you walked right past it."] },
+        { x: 3390, y: 865, name: "Potter", cfg: { body: "apron", robe: 0x8a6a3a, head: "wrap", headColor: 0xe8dcc4, beard: "full", elder: true }, miss: ["This kiln's mine and it's lit, as you can see.", "The old couple? Back west. The kiln with no fire in it."] },
+        { x: 3620, y: 905, name: "Melon-Seller", cfg: { body: "dress", robe: 0x8a5a3a, female: true, head: "scarf", headColor: 0xe2c04a, holding: "basket" }, miss: ["Melons! Sweet as honey!", "The kiln folk buy one melon a week, and split it two ways."] },
+        { x: 2700, y: 880, name: "Oven-Keeper", target: true }
       ],
       dialogue: [
         L("Oven-Keeper", "We share one robe between us, stranger. There is little else worth telling."),
@@ -81,15 +93,28 @@ const STORY = {
     graveyard: {
       title: "A Quiet Cemetery", sub: "east of the city", env: "cemetery", music: "grave",
       objective: "Find the gravekeeper among the graves",
+      crowd: 5, guideAfter: 7,
       spots: [
-        { x: 280, y: 720, grave: "slab", miss: ["Just packed earth.", "A name long worn away."] },
-        { x: 560, y: 650, grave: "box", miss: ["Nothing but weeds here.", "No one has visited in years."] },
-        { x: 420, y: 930, grave: "mound", miss: ["Empty. Untended."] },
-        { x: 820, y: 820, grave: "slab", miss: ["A cracked stone, no name at all."] },
-        { x: 1080, y: 660, grave: "pole", miss: ["Rags tied to a pole, faded white. Someone grieved here, once."] },
-        { x: 1180, y: 940, grave: "box", miss: ["Sunk deep into the earth. Old, this one. Somewhere close by, someone is crying."] },
-        { x: 1420, y: 720, grave: "slab", miss: ["Nothing. Just stone and silence. The weeping comes from further east."] },
-        { x: 1660, y: 880, name: "Gravekeeper", target: true }
+        { x: 3980, y: 800, grave: "slab", miss: ["Fresh flowers. Someone still comes.", "A name carved deep, and a date long gone."] },
+        { x: 3700, y: 965, grave: "box", miss: ["Nothing but weeds here.", "No one has visited in years."] },
+        { x: 3400, y: 760, grave: "mound", miss: ["Empty. Untended."] },
+        { x: 3150, y: 905, grave: "pole", miss: ["Rags tied to a pole, faded white. Someone grieved here, once."] },
+        { x: 2850, y: 720, grave: "slab", miss: ["A cracked stone, no name at all."] },
+        { x: 2500, y: 965, grave: "box", miss: ["Sunk deep into the earth. Old, this one."] },
+        { x: 2250, y: 780, grave: "slab", miss: ["Somewhere to the west, someone is weeping."] },
+        { x: 1950, y: 945, grave: "mound", miss: ["A child's grave. Small stones laid in a ring."] },
+        { x: 1600, y: 720, grave: "pole", miss: ["Prayer ribbons - new ones, tied this week."] },
+        { x: 1350, y: 965, grave: "slab", miss: ["'The keeper tends us all,' someone has scratched beneath the name."] },
+        { x: 1050, y: 800, grave: "box", miss: ["The weeping is close now - just past the dead tree."] },
+        { x: 780, y: 965, grave: "slab", miss: ["Nothing. Just stone and silence. The weeping comes from right by the gate."] },
+        { x: 4150, y: 900, name: "Mourner", glow: true, cfg: { body: "dress", robe: 0x4a4a5a, female: true, head: "scarf", headColor: 0x2a2a3a, holding: "lantern", mood: "sad" }, miss: ["I come every Thursday, for my mother.", "The keeper? He sits by the west gate, at the far end. Always has."] },
+        { x: 3550, y: 870, name: "Gravedigger", cfg: { body: "rags", robe: 0x5a5040, head: "wrap", headColor: 0x8a7a6a, beard: "full", holding: "staff" }, miss: ["Graves don't dig themselves.", "Twenty years he's been weeping. West, by the gate under the mulberry."] },
+        { x: 2950, y: 830, name: "Old Mourner", glow: true, cfg: { body: "cloak", robe: 0x3e4048, head: "hood", beard: "full", elder: true, holding: "lantern", mood: "sad" }, miss: ["Leave an old man to his grief.", "Not me, friend. I only weep on holy days."] },
+        { x: 2380, y: 870, name: "Young Man", cfg: { robe: 0x3a4a5a, head: "doppi", mood: "sad" }, miss: ["My brother's here. He fell from a roof.", "Follow the crying. It gets louder as you go west."] },
+        { x: 1750, y: 860, name: "Reciter", cfg: { robe: 0x2a3a4a, head: "turban", headColor: 0xf2ecdc, beard: "long", holding: "staff" }, miss: ["I read for the dead. They're good listeners.", "The keeper? A broken man. He'll be by the gate, with his lantern."] },
+        { x: 1200, y: 860, name: "Widow", glow: true, cfg: { body: "dress", robe: 0x3a3a4a, female: true, head: "scarf", headColor: 0x1a1a2a, holding: "lantern", elder: true, mood: "sad" }, miss: ["Shh. Can you hear him? Just there.", "He holds a lantern all night. As if someone might come back."] },
+        { x: 900, y: 760, name: "Lamplighter", glow: true, cfg: { body: "cloak", robe: 0x4a4038, head: "hood", beard: "full", elder: true, holding: "lantern" }, miss: ["Every lamp in this place, I light it. Every night.", "The weeping one's not me, friend. Right by the gate, under the mulberry."] },
+        { x: 470, y: 905, name: "Gravekeeper", target: true }
       ],
       dialogue: [
         L("Gravekeeper", "...Twenty years I've sat with a promise I never kept."),
@@ -101,13 +126,22 @@ const STORY = {
     bakery: {
       title: "A Street of Ovens", sub: "the bakery that never sells", env: "bazaar", music: "dusk",
       objective: "Find the baker who never sells his bread",
+      crowd: 14, guideAfter: 7, queues: [[860, 952, 3], [1700, 948, 2], [2560, 952, 3], [4270, 950, 2]],
       spots: [
-        { x: 300, y: 760, name: "Tailor", cfg: { robe: 0x4a6a5a, head: "doppi", beard: "goatee" }, miss: ["Bread? Try further down.", "I only sew, friend."] },
-        { x: 640, y: 940, name: "Fruit-Seller", cfg: { body: "dress", robe: 0x8a5a3a, female: true, head: "scarf", headColor: 0xe2c04a, holding: "basket" }, miss: ["That bakery? Strangest place in the city.", "They never sell a single loaf, you know."] },
-        { x: 900, y: 700, name: "Porter", cfg: { robe: 0x9a6a8a, head: "wrap", headColor: 0xe8dcc4 }, miss: ["Careful, coming through!", "Ovens are at the far end - can't miss the smell."] },
-        { x: 1120, y: 880, name: "Beggar", cfg: { body: "rags", robe: 0x6a8a9a, head: "wrap", headColor: 0x8a7a6a, beard: "full", elder: true, mood: "sad" }, miss: ["Spare bread, friend?", "They give theirs to the river, not to me."] },
-        { x: 440, y: 650, name: "Child", cfg: { robe: 0x8a8a4a, child: true, mood: "kind" }, miss: ["I like watching the loaves come out!", "Papa says the baker never smiles."] },
-        { x: 1600, y: 800, name: "Baker", target: true }
+        { x: 420, y: 760, name: "Tailor", cfg: { robe: 0x4a6a5a, head: "doppi", beard: "goatee" }, miss: ["Bread? Try further down.", "I only sew, friend."] },
+        { x: 740, y: 890, name: "Baker", cfg: { body: "apron", robe: 0xa5553a, trim: 0xd9a441, head: "doppi", beard: "goatee", build: 1.1 }, miss: ["Fresh non! Two coppers a loaf!", "Me? I sell every loaf by noon. You want the one who never sells."] },
+        { x: 1190, y: 945, name: "Fruit-Seller", cfg: { body: "dress", robe: 0x8a5a3a, female: true, head: "scarf", headColor: 0xe2c04a, holding: "basket" }, miss: ["That bakery? Strangest place in the city.", "His bread's the best on the street, and no one has ever bought a crumb."] },
+        { x: 1330, y: 765, name: "Old Woman", cfg: { body: "dress", robe: 0x6a4a5a, female: true, head: "scarf", headColor: 0xf6ecd8, elder: true }, miss: ["In my day bread cost half a copper.", "There's one baker who'll not sell to anyone. Don't ask him why."] },
+        { x: 1580, y: 880, name: "Baker", cfg: { body: "apron", robe: 0xb5553a, trim: 0xd9a441, head: "doppi", beard: "full", build: 1.15 }, miss: ["Queue's behind you, friend.", "The odd one? His shelves are always full. No queue, ever."] },
+        { x: 1900, y: 885, name: "Porter", cfg: { robe: 0x9a6a8a, head: "wrap", headColor: 0xe8dcc4 }, miss: ["Careful, coming through!", "The baker you mean has a blue door. Further down."] },
+        { x: 2110, y: 965, name: "Child", cfg: { robe: 0x8a8a4a, child: true, mood: "kind" }, miss: ["I like watching the loaves come out!", "Papa says the baker with the blue door never smiles."] },
+        { x: 2440, y: 890, name: "Baker", cfg: { body: "apron", robe: 0x9a4a3a, trim: 0xd9a441, head: "doppi", beard: "mustache", build: 1.1 }, miss: ["Sesame or nigella?", "Not me. I'd sell my own grandmother's recipe for a copper."] },
+        { x: 2790, y: 845, name: "Spice-Seller", cfg: { body: "dress", robe: 0x7a3a4a, female: true, head: "scarf", headColor: 0xd96a2a, pattern: "ikat", robe2: 0xd9a441 }, miss: ["Cumin, saffron, barberry!", "He bakes for the river, they say. Every single week."] },
+        { x: 2990, y: 945, name: "Beggar", cfg: { body: "rags", robe: 0x6a8a9a, head: "wrap", headColor: 0x8a7a6a, beard: "full", elder: true, mood: "sad" }, miss: ["Spare bread, friend?", "He gives his to the river, not to me."] },
+        { x: 3700, y: 965, name: "Water-Woman", cfg: { body: "dress", robe: 0x4a6a8a, female: true, head: "scarf", headColor: 0xf2ead8, holding: "jug" }, miss: ["Water's sweet from the street well.", "He gave me a loaf once, then asked for it back. Strange man."] },
+        { x: 4150, y: 890, name: "Baker", cfg: { body: "apron", robe: 0xa86a3a, trim: 0xd9a441, head: "doppi", beard: "goatee", build: 1.2 }, miss: ["Last oven on the street - and the best.", "You walked right past him. Blue door, no customers."] },
+        { x: 4460, y: 885, name: "Night-Watchman", cfg: { robe: 0x3a3a5a, head: "turban", headColor: 0xe8dcc4, beard: "full", holding: "staff" }, miss: ["Market closes at dark.", "The silent baker? Back the way you came. Blue door."] },
+        { x: 3320, y: 890, name: "Baker", target: true }
       ],
       dialogue: [
         L("Baker", "Every week, bread. Never sold. I don't expect a stranger to understand why."),
@@ -119,13 +153,25 @@ const STORY = {
     saddler: {
       title: "The Saddler's Row", sub: "leather and brass", env: "saddler", music: "bazaar",
       objective: "Find the saddler who breaks his own work",
+      crowd: 18, guideAfter: 8,
       spots: [
-        { x: 300, y: 900, name: "Cobbler", cfg: { robe: 0x5a6a4a, head: "doppi" }, miss: ["Saddles aren't my trade.", "You want the one who breaks his own work. End of the row."] },
-        { x: 620, y: 690, name: "Cart-Driver", cfg: { robe: 0x7a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["He builds one a year. Sells it. Buys it right back. Smashes it.", "Nobody's ever gotten a straight answer from him."] },
-        { x: 960, y: 900, name: "Stable-Hand", cfg: { robe: 0x9a8a5a, head: "cap", trim: 0x1f6f6f }, miss: ["Horses all through here, mind your step.", "He's particular about who he lets near his work."] },
-        { x: 520, y: 830, name: "Trader", cfg: { body: "dress", robe: 0x8a6a9a, female: true, head: "scarf", headColor: 0xf6ecd8, holding: "basket" }, miss: ["Leatherwork, best in the city.", "Except his - never for sale, that one."] },
-        { x: 1240, y: 700, name: "Child", cfg: { robe: 0x6a9a8a, child: true, mood: "kind" }, miss: ["He let me watch him work once!", "He talks to the saddle like it can hear him."] },
-        { x: 1600, y: 860, name: "Saddler", target: true }
+        { x: 380, y: 905, name: "Cobbler", cfg: { robe: 0x5a6a4a, head: "doppi" }, miss: ["Saddles aren't my trade.", "You want the one who breaks his own work. Further along the row."] },
+        { x: 760, y: 885, name: "Leatherworker", cfg: { body: "apron", robe: 0x7a5a3a, head: "doppi", beard: "mustache" }, miss: ["Bridles, belts, the best in the city.", "Not me. I sell everything I make, and gladly."] },
+        { x: 1060, y: 905, name: "Cart-Driver", cfg: { robe: 0x7a5a3a, head: "turban", headColor: 0xe8dcc4, beard: "full" }, miss: ["He builds one a year. Sells it. Buys it right back. Smashes it.", "Nobody's ever got a straight answer from him."] },
+        { x: 1250, y: 880, name: "Stable-Hand", cfg: { robe: 0x9a8a5a, head: "cap", trim: 0x1f6f6f }, miss: ["Horses all through here, mind your step.", "He's particular about who he lets near his work."] },
+        { x: 1480, y: 885, name: "Saddler", cfg: { robe: 0x6b4a2e, trim: 0xc9a24b, pattern: "stripes", head: "doppi", beard: "goatee", hair: 0x3a2a1a }, miss: ["Fine saddles, fair prices!", "The mad one? Look for splinters on the ground in front of his shop."] },
+        { x: 1700, y: 905, name: "Tanner", cfg: { body: "apron", robe: 0x5a4a2a, head: "wrap", headColor: 0xd9cdb4, beard: "full" }, miss: ["Smells, doesn't it? That's the hides.", "He buys my best hides. Then he ruins them."] },
+        { x: 1880, y: 845, name: "Trader", cfg: { body: "dress", robe: 0x8a6a9a, female: true, head: "scarf", headColor: 0xf6ecd8, holding: "basket" }, miss: ["Leatherwork, best in the city.", "Except his - never for sale, that one."] },
+        { x: 2080, y: 880, name: "Child", cfg: { robe: 0x6a9a8a, child: true, mood: "kind" }, miss: ["He let me watch him work once!", "He talks to the saddle like it can hear him."] },
+        { x: 2560, y: 965, name: "Water-Boy", cfg: { robe: 0x5a6a8a, child: true, holding: "jug" }, miss: ["Water for the horses!", "He's just there. Hear the mallet?"] },
+        { x: 2880, y: 885, name: "Groom", cfg: { robe: 0x6a5a3a, head: "cap", trim: 0xd9a441 }, miss: ["This one bites. Don't.", "I bring him leather every spring. He never says thank you."] },
+        { x: 3080, y: 885, name: "Saddler", cfg: { robe: 0x5a3a24, trim: 0xd9a441, pattern: "stripes", head: "doppi", beard: "full", hair: 0x2a1a10 }, miss: ["One saddle, two saddles - how many horses have you?", "Back west. You'll know him by the pieces at his feet."] },
+        { x: 3560, y: 885, name: "Blacksmith", cfg: { body: "apron", robe: 0x3a3a3a, head: "cap", beard: "full", build: 1.2 }, miss: ["Stirrups, buckles, bits!", "He buys his iron from me and breaks it a year later."] },
+        { x: 3740, y: 905, name: "Old Horseman", cfg: { robe: 0x4a5a6a, head: "kalpak", headColor: 0xf2ecdc, beard: "long", elder: true, holding: "staff" }, miss: ["I've ridden since before your father was born.", "Qahraton - now there was a rider. I've not heard that name in twenty years."] },
+        { x: 3860, y: 885, name: "Saddler", cfg: { robe: 0x7a4a2e, trim: 0xc9a24b, pattern: "stripes", head: "doppi", beard: "mustache" }, miss: ["Leather from Bukhara, brass from Samarkand!", "Not me, friend. You've come too far."] },
+        { x: 4180, y: 965, name: "Woman", cfg: { body: "dress", robe: 0x9a4a5a, female: true, head: "scarf", headColor: 0xd9a441, vest: 0x3a1a2a }, miss: ["Looking for a saddle for your sweetheart?", "Not that way. Back west - the one with the broken things."] },
+        { x: 4600, y: 885, name: "Saddler", cfg: { robe: 0x6b4a2e, trim: 0xd9a441, pattern: "stripes", head: "turban", headColor: 0xe8dcc4, beard: "goatee" }, miss: ["Last shop on the row.", "You've come too far, friend. Much too far."] },
+        { x: 2280, y: 880, name: "Saddler", target: true }
       ],
       dialogue: [
         L("Saddler", "One saddle a year. Sold, bought back, broken. Don't ask me why - I'm not sure I fully know myself."),
@@ -239,13 +285,22 @@ const STORY = {
   ],
 
   // Flights. length = seconds of flying at full speed. gap = the vertical
-  // opening between a tower and the cloud bank above it, in pixels.
+  // opening between the top of a tower and the lowest point of whatever
+  // hangs above it, in pixels (start of the flight -> end). spacing = the
+  // distance between gaps. hazards = what else is in the air; hazardRate =
+  // the chance of one per gap (start -> end). top = what hangs above.
   flights: {
-    desert: { title: "Over the Red Sands", music: "flight1", time: "day", sky: [0x3f86b8, 0x9fd0e0, 0xf3d9a4], ground: 0xd9a861, ridge: 0xc98d4f, ridge2: 0xa86a3a, city: 0xb0784a, tower: "minaret", hazard: null, speed: 430, length: 42, gap: [340, 280], spacing: [560, 470] },
-    wind: { title: "Through the Wind Gate", music: "flight2", time: "day", sky: [0x6f9ab8, 0xb9d4dc, 0xe4e6d6], ground: 0x8a9a6a, ridge: 0x7a8aa0, ridge2: 0x5a6a80, city: 0x6a7a88, tower: "spire", hazard: "bird", speed: 450, length: 50, gap: [320, 260], spacing: [540, 450], wind: true },
-    dusk: { title: "The Evening Road", music: "flight3", time: "dusk", sky: [0x2a2458, 0xb05a6a, 0xf0a060], ground: 0x5a3a4a, ridge: 0x6a3a5a, ridge2: 0x3a2440, city: 0x3a2440, tower: "dome", hazard: "bird", speed: 465, length: 56, gap: [310, 250], spacing: [520, 430] },
-    day2: { title: "The Canyon of Archers", music: "flight4", time: "day", sky: [0x4a86b0, 0xd8c890, 0xe8b070], ground: 0xb07a4a, ridge: 0xa8603a, ridge2: 0x7a4026, city: 0x8a5232, tower: "rock", hazard: "arrow", speed: 480, length: 60, gap: [300, 240], spacing: [510, 420] },
-    storm: { title: "Into the Storm", music: "flight5", time: "storm", sky: [0x15141f, 0x2a2a3e, 0x4a4658], ground: 0x24222e, ridge: 0x2e2c3a, ridge2: 0x1e1c28, city: 0x1e1c28, tower: "tower", hazard: "arrow", speed: 495, length: 64, gap: [300, 236], spacing: [500, 410], storm: true }
+    desert: { title: "Over the Red Sands", music: "flight1", time: "day", sky: [0x3f86b8, 0x9fd0e0, 0xf3d9a4], ground: 0xd9a861, ridge: 0xc98d4f, ridge2: 0xa86a3a, city: 0xb0784a, tower: "minaret", top: "cloud", hazards: [], speed: 430, length: 42, gap: [400, 340], spacing: [560, 470] },
+    wind: { title: "Through the Wind Gate", music: "flight2", time: "day", sky: [0x6f9ab8, 0xb9d4dc, 0xe4e6d6], ground: 0x8a9a6a, ridge: 0x7a8aa0, ridge2: 0x5a6a80, city: 0x6a7a88, tower: "spire", top: "cloud", hazards: ["bird"], hazardRate: [0.25, 0.5], speed: 450, length: 50, gap: [385, 325], spacing: [540, 450], wind: true },
+    dusk: { title: "The Evening Road", music: "flight3", time: "dusk", sky: [0x2a2458, 0xb05a6a, 0xf0a060], ground: 0x5a3a4a, ridge: 0x6a3a5a, ridge2: 0x3a2440, city: 0x3a2440, tower: "dome", top: "cloud", hazards: ["bird", "bird", "falcon"], hazardRate: [0.3, 0.55], speed: 465, length: 56, gap: [375, 315], spacing: [520, 430] },
+    day2: { title: "The Canyon of Archers", music: "flight4", time: "day", sky: [0x4a86b0, 0xd8c890, 0xe8b070], ground: 0xb07a4a, ridge: 0xa8603a, ridge2: 0x7a4026, city: 0x8a5232, tower: "rock", top: "rock", hazards: ["arrow", "archer", "archer"], hazardRate: [0.35, 0.6], speed: 480, length: 60, gap: [370, 305], spacing: [510, 420], intro: "Archers in the canyon - watch where they aim!" },
+    storm: { title: "Into the Storm", music: "flight5", time: "storm", sky: [0x15141f, 0x2a2a3e, 0x4a4658], ground: 0x24222e, ridge: 0x2e2c3a, ridge2: 0x1e1c28, city: 0x1e1c28, tower: "tower", top: "cloud", hazards: ["bird", "falcon", "arrow", "archer"], hazardRate: [0.45, 0.75], speed: 495, length: 64, gap: [365, 300], spacing: [500, 410], storm: true },
+    // the way back: shorter, but each with its own trouble
+    escape: { title: "Out of Sanobar's City", music: "flight6", time: "night", sky: [0x0a0a20, 0x1e2246, 0x4a3a5a], ground: 0x2a2436, ridge: 0x2a2a48, ridge2: 0x1e1e34, city: 0x1c1a34, tower: "walltower", top: "cloud", hazards: ["archer", "archer", "falcon", "arrow"], hazardRate: [0.45, 0.7], speed: 470, length: 34, gap: [385, 330], spacing: [520, 450], intro: "The palace archers are awake. Keep moving!" },
+    ovens: { title: "Over the Street of Ovens", music: "flight7", time: "dusk", sky: [0x2a2458, 0xb05a6a, 0xf0a060], ground: 0x5a3a3a, ridge: 0x6a3a5a, ridge2: 0x3a2440, city: 0x4a2a40, tower: "chimney", top: "cloud", hazards: ["smoke", "smoke", "bird"], hazardRate: [0.5, 0.75], speed: 460, length: 32, gap: [390, 335], spacing: [520, 450], intro: "Hot smoke lifts the carpet - fly low over the chimneys" },
+    graves: { title: "Over the Moonlit Graves", music: "flight8", time: "night", sky: [0x080a1c, 0x1a2244, 0x3a4468], ground: 0x2a3030, ridge: 0x22283e, ridge2: 0x1a1e30, city: 0x1a1e30, tower: "cypress", top: "cloud", hazards: ["bat", "bat", "falcon"], hazardRate: [0.45, 0.7], speed: 455, length: 32, gap: [385, 330], spacing: [520, 450], intro: "Bats over the graves. They never fly straight." },
+    sands: { title: "Through the Sandstorm", music: "flight9", time: "day", sky: [0xb07a4a, 0xd8a868, 0xe8c890], ground: 0xc89a5a, ridge: 0xb07a48, ridge2: 0x8a5a34, city: 0x9a6a42, tower: "pillar", top: "rock", hazards: ["bird", "arrow"], hazardRate: [0.35, 0.55], speed: 470, length: 32, gap: [385, 330], spacing: [520, 450], wind: true, sand: true, intro: "Sand in the air - the wind will shove you" },
+    home: { title: "The Road Home", music: "flight10", time: "dawn", sky: [0x3a3a6a, 0xd890a0, 0xffd8a0], ground: 0x8aa064, ridge: 0x8a7aa0, ridge2: 0x6a5a80, city: 0x7a6070, tower: "poplar", top: "cloud", hazards: ["kite", "kite", "bird"], hazardRate: [0.5, 0.7], speed: 450, length: 30, gap: [395, 340], spacing: [540, 470], intro: "The village children are flying kites - mind the strings!" }
   },
 
   sequence: [
@@ -263,15 +318,15 @@ const STORY = {
     { type: "kitchenGame" },
     { type: "hallOfSkulls", mode: "real" },
     { type: "duel" },
-    { type: "carpet", quick: true, toLabel: "the Saddler" },
+    { type: "carpet", theme: "escape", toLabel: "the Saddler" },
     { type: "town", key: "saddlerRevisit" },
-    { type: "carpet", quick: true, toLabel: "the Street of Ovens" },
+    { type: "carpet", theme: "ovens", toLabel: "the Street of Ovens" },
     { type: "town", key: "bakeryRevisit" },
-    { type: "carpet", quick: true, toLabel: "the Gravekeeper" },
+    { type: "carpet", theme: "graves", toLabel: "the Gravekeeper" },
     { type: "town", key: "graveyardRevisit" },
-    { type: "carpet", quick: true, toLabel: "the Kiln" },
+    { type: "carpet", theme: "sands", toLabel: "the Kiln" },
     { type: "town", key: "ovenRevisit" },
-    { type: "carpet", quick: true, toLabel: "Home" },
+    { type: "carpet", theme: "home", toLabel: "Home" },
     { type: "ending" }
   ]
 };
@@ -281,6 +336,6 @@ Object.keys(STORY.towns).forEach(k => {
   const t = STORY.towns[k];
   if (!t.base) return;
   const b = STORY.towns[t.base];
-  ["env", "music", "sub"].forEach(f => { if (t[f] === undefined) t[f] = b[f]; });
+  ["env", "music", "sub", "crowd", "queues", "guideAfter"].forEach(f => { if (t[f] === undefined) t[f] = b[f]; });
   if (!t.spots) t.spots = b.spots;
 });

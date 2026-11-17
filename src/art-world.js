@@ -601,28 +601,6 @@ function paintStall(ctx, cx, baseY, o) {
   strokeC(ctx, OL(c1), 2); ctx.beginPath(); ctx.moveTo(lerp(cx - aw / 2, cx, 0.12), topY); ctx.lineTo(lerp(cx + aw / 2, cx, 0.12), topY); ctx.stroke();
 }
 
-function paintWell(ctx, cx, baseY) {
-  softEllipse(ctx, cx + 8, baseY + 2, 88, 22, 0x000000, 0.3);
-  strokeC(ctx, 0x3a2414, 9); ctx.lineCap = "round";
-  [-1, 1].forEach(s => { ctx.beginPath(); ctx.moveTo(cx + s * 56, baseY - 20); ctx.lineTo(cx + s * 56, baseY - 172); ctx.stroke(); });
-  strokeC(ctx, 0x7a5632, 5); [-1, 1].forEach(s => { ctx.beginPath(); ctx.moveTo(cx + s * 56, baseY - 20); ctx.lineTo(cx + s * 56, baseY - 172); ctx.stroke(); });
-  // stone ring
-  pRR(ctx, cx - 70, baseY - 62, 140, 62, 14);
-  ctx.fillStyle = patS(ctx, tileBrick(0x9a8f80, 0x5a5248, 30, 16, "well"), 1); ctx.fill();
-  ctx.fillStyle = gradH(ctx, cx - 70, cx + 70, [[0, 0xffffff, 0.16], [0.4, 0x000000, 0], [1, 0x000000, 0.4]]); ctx.fill();
-  strokeC(ctx, 0x2a2420, 2.2); ctx.stroke();
-  pEll(ctx, cx, baseY - 62, 70, 20); fillC(ctx, 0xb0a594); ctx.fill(); ctx.stroke();
-  pEll(ctx, cx, baseY - 60, 52, 13); ctx.fillStyle = gradV(ctx, baseY - 72, baseY - 48, [[0, 0x0e1a2a], [1, 0x2a5a80]]); ctx.fill();
-  // roof
-  ctx.beginPath(); ctx.moveTo(cx - 92, baseY - 164); ctx.lineTo(cx, baseY - 222); ctx.lineTo(cx + 92, baseY - 164); ctx.closePath();
-  ctx.fillStyle = gradV(ctx, baseY - 222, baseY - 164, [[0, 0xb5553a], [1, 0x7a3220]]); ctx.fill(); strokeC(ctx, 0x3a140a, 2.2); ctx.stroke();
-  strokeC(ctx, 0x3a140a, 1.2, 0.5); for (let i = -3; i <= 3; i++) { ctx.beginPath(); ctx.moveTo(cx + i * 24, baseY - 164); ctx.lineTo(cx + i * 8, baseY - 214); ctx.stroke(); }
-  // windlass, rope, bucket
-  strokeC(ctx, 0x4a3018, 7); ctx.beginPath(); ctx.moveTo(cx - 56, baseY - 136); ctx.lineTo(cx + 56, baseY - 136); ctx.stroke();
-  strokeC(ctx, 0xd9c9a0, 2.4); ctx.beginPath(); ctx.moveTo(cx + 8, baseY - 136); ctx.lineTo(cx + 8, baseY - 96); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(cx - 4, baseY - 96); ctx.lineTo(cx + 20, baseY - 96); ctx.lineTo(cx + 17, baseY - 74); ctx.lineTo(cx - 1, baseY - 74); ctx.closePath();
-  fillC(ctx, 0x8a6238); ctx.fill(); strokeC(ctx, 0x2a160a, 1.8); ctx.stroke();
-}
 
 // Two-wheeled arba with its great spoked wheel. o.load: sacks | hay | bricks | bread | null
 function paintCart(ctx, cx, baseY, o) {
@@ -645,45 +623,6 @@ function paintCart(ctx, cx, baseY, o) {
   ctx.beginPath(); ctx.arc(wx, wy, 13, 0, 6.2832); fillC(ctx, 0x3a2414); ctx.fill(); ctx.beginPath(); ctx.arc(wx, wy, 5, 0, 6.2832); fillC(ctx, PAL.gold); ctx.fill();
 }
 
-function paintPots(ctx, cx, baseY, seed, o) {
-  o = o || {};
-  const r = rng(seed || "pots" + cx), n = o.n || 3;
-  softEllipse(ctx, cx, baseY + 2, 30 + n * 20, 13, 0x000000, 0.28);
-  for (let i = 0; i < n; i++) {
-    const x = cx + (i - (n - 1) / 2) * 44 + r.range(-5, 5), s = r.range(0.8, 1.25), c = r.pick([0xc66a3d, 0xb5553a, 0xd98a5a, 0x9a6a4a]);
-    ctx.beginPath(); ctx.moveTo(x - 10 * s, baseY - 58 * s); ctx.lineTo(x + 10 * s, baseY - 58 * s);
-    ctx.quadraticCurveTo(x + 8 * s, baseY - 48 * s, x + 24 * s, baseY - 34 * s); ctx.quadraticCurveTo(x + 30 * s, baseY - 8 * s, x + 13 * s, baseY);
-    ctx.lineTo(x - 13 * s, baseY); ctx.quadraticCurveTo(x - 30 * s, baseY - 8 * s, x - 24 * s, baseY - 34 * s); ctx.quadraticCurveTo(x - 8 * s, baseY - 48 * s, x - 10 * s, baseY - 58 * s); ctx.closePath();
-    ctx.fillStyle = gradH(ctx, x - 28 * s, x + 28 * s, [[0, lighten(c, 0.26)], [0.4, c], [1, darken(c, 0.34)]]); ctx.fill(); strokeC(ctx, OL(c), 2); ctx.stroke();
-    pEll(ctx, x, baseY - 58 * s, 10 * s, 3.4 * s); fillC(ctx, 0x2a160a); ctx.fill();
-    strokeC(ctx, PAL.cream, 2, 0.7); ctx.beginPath(); ctx.moveTo(x - 24 * s, baseY - 28 * s); ctx.quadraticCurveTo(x, baseY - 22 * s, x + 24 * s, baseY - 28 * s); ctx.stroke();
-  }
-}
-function paintSacks(ctx, cx, baseY, seed) {
-  const r = rng(seed || "sacks" + cx);
-  softEllipse(ctx, cx, baseY + 2, 86, 15, 0x000000, 0.28);
-  [[-40, 0, 1], [38, 0, 0.95], [0, -42, 0.9]].forEach((p, i) => {
-    const x = cx + p[0], y = baseY + p[1], s = p[2], c = i % 2 ? 0xcdb98e : 0xbfa878;
-    ctx.beginPath(); ctx.moveTo(x - 30 * s, y); ctx.quadraticCurveTo(x - 40 * s, y - 34 * s, x - 22 * s, y - 56 * s); ctx.lineTo(x + 22 * s, y - 56 * s); ctx.quadraticCurveTo(x + 40 * s, y - 34 * s, x + 30 * s, y); ctx.closePath();
-    ctx.fillStyle = gradH(ctx, x - 36 * s, x + 36 * s, [[0, lighten(c, 0.18)], [1, darken(c, 0.3)]]); ctx.fill(); strokeC(ctx, 0x5a4a2a, 2); ctx.stroke();
-    pEll(ctx, x, y - 56 * s, 22 * s, 7 * s); fillC(ctx, r.pick([0xf6ecd8, 0xe2c04a, 0xb5553a])); ctx.fill(); ctx.stroke();
-  });
-}
-function paintHay(ctx, cx, baseY) {
-  softEllipse(ctx, cx, baseY + 2, 104, 18, 0x000000, 0.28);
-  ctx.beginPath(); ctx.moveTo(cx - 92, baseY); ctx.quadraticCurveTo(cx - 84, baseY - 110, cx, baseY - 124); ctx.quadraticCurveTo(cx + 84, baseY - 110, cx + 92, baseY); ctx.closePath();
-  ctx.fillStyle = gradH(ctx, cx - 92, cx + 92, [[0, 0xead07a], [0.5, 0xd4b254], [1, 0x9a7a2c]]); ctx.fill(); strokeC(ctx, 0x6a5218, 2.2); ctx.stroke();
-  const r = rng("hay" + cx); strokeC(ctx, 0x7a5f1c, 1.4, 0.5);
-  for (let i = 0; i < 40; i++) { const x = cx + r.range(-80, 80), y = baseY - r.range(4, 104) * (1 - Math.abs(x - cx) / 110); ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + r.range(-8, 8), y - r.range(8, 18)); ctx.stroke(); }
-}
-function paintFirewood(ctx, cx, baseY) {
-  softEllipse(ctx, cx, baseY + 2, 78, 13, 0x000000, 0.28);
-  for (let j = 0; j < 3; j++) for (let i = 0; i < 5 - j; i++) {
-    const x = cx - 56 + i * 28 + j * 14, y = baseY - 13 - j * 24;
-    ctx.beginPath(); ctx.arc(x, y, 13, 0, 6.2832); ctx.fillStyle = gradR(ctx, x, y, 1, 13, [[0, 0xd9b88a], [0.7, 0xa87a48], [1, 0x5a3a1c]]); ctx.fill(); strokeC(ctx, 0x2a160a, 1.6); ctx.stroke();
-    strokeC(ctx, 0x6a4a28, 1, 0.7); ctx.beginPath(); ctx.arc(x, y, 6, 0, 6.2832); ctx.stroke();
-  }
-}
 // Post with a hanging lantern. Returns where its light is.
 function paintLampPost(ctx, cx, baseY) {
   softEllipse(ctx, cx, baseY + 2, 26, 8, 0x000000, 0.28);
@@ -745,11 +684,17 @@ function paintTandir(ctx, cx, baseY, s) {
   softEllipse(ctx, cx + 6, baseY + 2, 104 * s, 22 * s, 0x000000, 0.32);
   pRR(ctx, cx - 104 * s, baseY - 34 * s, 208 * s, 34 * s, 8); ctx.fillStyle = gradV(ctx, baseY - 34 * s, baseY, [[0, 0xb89a74], [1, 0x7a6248]]); ctx.fill(); strokeC(ctx, 0x3a2a1a, 2.2); ctx.stroke();
   const by = baseY - 32 * s, c = 0xc58a5a;
-  ctx.beginPath(); ctx.moveTo(cx - 88 * s, by); ctx.bezierCurveTo(cx - 100 * s, by - 100 * s, cx - 50 * s, by - 150 * s, cx, by - 150 * s);
-  ctx.bezierCurveTo(cx + 50 * s, by - 150 * s, cx + 100 * s, by - 100 * s, cx + 88 * s, by); ctx.closePath();
-  ctx.fillStyle = gradH(ctx, cx - 92 * s, cx + 92 * s, [[0, lighten(c, 0.24)], [0.45, c], [1, darken(c, 0.38)]]); ctx.fill();
-  ctx.save(); ctx.clip(); mottle(ctx, cx - 100 * s, by - 150 * s, 200 * s, 150 * s, 0x3a2414, 0.2, 9, "tandir" + cx, 20, 60); ctx.restore();
-  strokeC(ctx, OL(c), 2.4); ctx.stroke();
+  const dome = () => {
+    ctx.beginPath(); ctx.moveTo(cx - 88 * s, by); ctx.bezierCurveTo(cx - 100 * s, by - 100 * s, cx - 50 * s, by - 150 * s, cx, by - 150 * s);
+    ctx.bezierCurveTo(cx + 50 * s, by - 150 * s, cx + 100 * s, by - 100 * s, cx + 88 * s, by); ctx.closePath();
+  };
+  dome(); ctx.fillStyle = gradH(ctx, cx - 92 * s, cx + 92 * s, [[0, lighten(c, 0.24)], [0.45, c], [1, darken(c, 0.38)]]); ctx.fill();
+  ctx.save(); dome(); ctx.clip();
+  mottle(ctx, cx - 100 * s, by - 150 * s, 200 * s, 150 * s, 0x3a2414, 0.2, 9, "tandir" + cx, 20, 60);
+  strokeC(ctx, darken(c, 0.3), 1.4 * s, 0.35);                       // the clay coils it was built from
+  for (let k = 1; k < 7; k++) { const yy = by - k * 20 * s; ctx.beginPath(); ctx.moveTo(cx - 110 * s, yy); ctx.quadraticCurveTo(cx, yy - 6 * s, cx + 110 * s, yy); ctx.stroke(); }
+  ctx.restore();
+  dome(); strokeC(ctx, OL(c), 2.4); ctx.stroke();
   // mouth
   pArch(ctx, cx, by - 8 * s, 82 * s, 92 * s, 0.5); fillC(ctx, 0x1a0c06); ctx.fill(); strokeC(ctx, 0x2a160a, 5 * s); ctx.stroke();
   ctx.save(); pArch(ctx, cx, by - 8 * s, 82 * s, 92 * s, 0.5); ctx.clip();
@@ -759,64 +704,7 @@ function paintTandir(ctx, cx, baseY, s) {
   return { x: 0, y: -60 * s, r: 240 * s };
 }
 
-// ---------- the horse ----------
-// Faces right. About 300 wide, 250 tall at s = 1.
-function paintHorse(ctx, cx, baseY, s, o) {
-  o = o || {};
-  const c = o.color !== undefined ? o.color : 0x7a4a26, mane = o.mane !== undefined ? o.mane : darken(c, 0.55), dk = OL(c);
-  const X = x => cx + x * s, Y = y => baseY + y * s;
-  softEllipse(ctx, cx, baseY + 2, 150 * s, 24 * s, 0x000000, 0.32);
-  const leg = (x, back) => {
-    ctx.beginPath();
-    ctx.moveTo(X(x - 13), Y(-128)); ctx.quadraticCurveTo(X(x - 9 + (back ? -8 : 4)), Y(-70), X(x - 8), Y(-22)); ctx.lineTo(X(x - 10), Y(-8));
-    ctx.lineTo(X(x + 9), Y(-8)); ctx.lineTo(X(x + 7), Y(-22)); ctx.quadraticCurveTo(X(x + 10 + (back ? -4 : 6)), Y(-70), X(x + 15), Y(-128)); ctx.closePath();
-    ctx.fillStyle = gradH(ctx, X(x - 14), X(x + 16), [[0, lighten(c, 0.1)], [1, darken(c, 0.34)]]); ctx.fill(); strokeC(ctx, dk, 2 * s); ctx.stroke();
-    pRR(ctx, X(x - 11), Y(-10), 21 * s, 11 * s, 3 * s); fillC(ctx, 0x1e1410); ctx.fill();
-  };
-  leg(-78, true); leg(64, false);
-  // tail
-  ctx.beginPath(); ctx.moveTo(X(-118), Y(-178)); ctx.bezierCurveTo(X(-170), Y(-170), X(-160), Y(-90), X(-144), Y(-46));
-  ctx.bezierCurveTo(X(-136), Y(-92), X(-128), Y(-140), X(-108), Y(-160)); ctx.closePath(); fillC(ctx, mane); ctx.fill(); strokeC(ctx, darken(mane, 0.4), 1.6 * s); ctx.stroke();
-  // body + neck + head, one silhouette
-  ctx.beginPath();
-  ctx.moveTo(X(-116), Y(-180));
-  ctx.bezierCurveTo(X(-126), Y(-150), X(-118), Y(-116), X(-96), Y(-108));
-  ctx.bezierCurveTo(X(-40), Y(-94), X(30), Y(-94), X(74), Y(-112));
-  ctx.bezierCurveTo(X(92), Y(-124), X(96), Y(-152), X(92), Y(-172));
-  ctx.bezierCurveTo(X(108), Y(-196), X(120), Y(-214), X(132), Y(-216));
-  ctx.bezierCurveTo(X(150), Y(-200), X(168), Y(-186), X(170), Y(-172));
-  ctx.bezierCurveTo(X(170), Y(-160), X(156), Y(-158), X(148), Y(-166));
-  ctx.bezierCurveTo(X(140), Y(-176), X(128), Y(-184), X(122), Y(-186));
-  ctx.bezierCurveTo(X(132), Y(-212), X(128), Y(-244), X(116), Y(-252));
-  ctx.lineTo(X(110), Y(-236));
-  ctx.bezierCurveTo(X(84), Y(-232), X(58), Y(-214), X(40), Y(-196));
-  ctx.bezierCurveTo(X(-10), Y(-204), X(-70), Y(-206), X(-116), Y(-180));
-  ctx.closePath();
-  ctx.fillStyle = gradV(ctx, Y(-250), Y(-94), [[0, lighten(c, 0.22)], [0.5, c], [1, darken(c, 0.32)]]); ctx.fill();
-  strokeC(ctx, dk, 2.4 * s); ctx.lineJoin = "round"; ctx.stroke();
-  leg(-102, true); leg(42, false);
-  // mane
-  ctx.beginPath(); ctx.moveTo(X(112), Y(-250)); ctx.bezierCurveTo(X(84), Y(-246), X(52), Y(-226), X(36), Y(-198));
-  ctx.bezierCurveTo(X(56), Y(-204), X(86), Y(-216), X(108), Y(-224)); ctx.closePath(); fillC(ctx, mane); ctx.fill();
-  // face details
-  fillC(ctx, 0x1e1410); ctx.beginPath(); ctx.ellipse(X(136), Y(-200), 4.4 * s, 5 * s, 0, 0, 6.2832); ctx.fill();
-  fillC(ctx, 0xffffff, 0.8); ctx.beginPath(); ctx.arc(X(135), Y(-202), 1.4 * s, 0, 6.2832); ctx.fill();
-  fillC(ctx, 0x1e1410, 0.7); ctx.beginPath(); ctx.arc(X(165), Y(-170), 2.2 * s, 0, 6.2832); ctx.fill();
-  if (o.blaze) { fillC(ctx, 0xf6ecd8, 0.9); ctx.beginPath(); ctx.moveTo(X(136), Y(-212)); ctx.quadraticCurveTo(X(156), Y(-192), X(164), Y(-178)); ctx.quadraticCurveTo(X(150), Y(-188), X(140), Y(-206)); ctx.closePath(); ctx.fill(); }
-  // halter
-  strokeC(ctx, 0x8e2f2f, 3 * s); ctx.beginPath(); ctx.moveTo(X(146), Y(-190)); ctx.lineTo(X(152), Y(-162)); ctx.moveTo(X(128), Y(-188)); ctx.quadraticCurveTo(X(140), Y(-180), X(152), Y(-176)); ctx.stroke();
-  if (o.blanket !== false) {
-    ctx.beginPath(); ctx.moveTo(X(-64), Y(-200)); ctx.quadraticCurveTo(X(-10), Y(-208), X(30), Y(-198)); ctx.lineTo(X(26), Y(-128)); ctx.quadraticCurveTo(X(-18), Y(-120), X(-60), Y(-128)); ctx.closePath();
-    ctx.fillStyle = patS(ctx, tileIkat(o.blanket || [0x8e2f2f, 0xd9a441, 0x1c4e80, 0xf6ecd8], "horse"), 0.5 * s); ctx.fill();
-    ctx.fillStyle = gradV(ctx, Y(-204), Y(-124), [[0, 0xffffff, 0.14], [1, 0x000000, 0.28]]); ctx.fill();
-    strokeC(ctx, 0x3a1414, 2 * s); ctx.stroke();
-    if (o.saddle) {
-      ctx.beginPath(); ctx.moveTo(X(-48), Y(-204)); ctx.quadraticCurveTo(X(-52), Y(-234), X(-34), Y(-232)); ctx.quadraticCurveTo(X(-14), Y(-214), X(4), Y(-218));
-      ctx.quadraticCurveTo(X(14), Y(-240), X(24), Y(-222)); ctx.quadraticCurveTo(X(24), Y(-204), X(16), Y(-198)); ctx.quadraticCurveTo(X(-18), Y(-204), X(-48), Y(-204)); ctx.closePath();
-      ctx.fillStyle = gradV(ctx, Y(-238), Y(-198), [[0, 0x9a6a3a], [1, 0x5a3418]]); ctx.fill(); strokeC(ctx, 0x2a160a, 2 * s); ctx.stroke();
-    }
-  }
-}
+
 
 // ---------- the flying carpet ----------
 

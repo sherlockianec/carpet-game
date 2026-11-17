@@ -223,7 +223,17 @@ const SFX = {
   heart() { this.bell(784, 0.09, 0.5); this.bell(1175, 0.07, 0.6, 0.09); },
   land() { this.tone({ f0: 120, f1: 60, dur: 0.16, vol: 0.2 }); this.noise({ type: "lowpass", f0: 600, dur: 0.12, vol: 0.08 }); },
   drum() { this.tone({ f0: 130, f1: 52, dur: 0.22, vol: 0.4 }); },
-  sob() { this.tone({ f0: 310, f1: 240, dur: 0.22, vol: 0.02, attack: 0.05 }); this.tone({ f0: 290, f1: 220, dur: 0.26, vol: 0.018, attack: 0.05, delay: 0.3 }); }
+  sob(o) { const v = o.vol === undefined ? 1 : o.vol; this.tone({ f0: 310, f1: 240, dur: 0.22, vol: 0.02 * v, attack: 0.05 }); this.tone({ f0: 290, f1: 220, dur: 0.26, vol: 0.018 * v, attack: 0.05, delay: 0.3 }); },
+  flap() { for (let i = 0; i < 3; i++) this.noise({ type: "lowpass", f0: 700, dur: 0.07, vol: 0.06, delay: i * 0.11 }); },
+  screech() { this.tone({ type: "sawtooth", f0: 2300, f1: 1500, dur: 0.42, vol: 0.035, attack: 0.03 }); this.tone({ f0: 3100, f1: 2000, dur: 0.38, vol: 0.03, attack: 0.03 }); },
+  squeak() { for (let i = 0; i < 4; i++) this.tone({ f0: 5200 + Math.random() * 1400, f1: 4200, dur: 0.04, vol: 0.02, delay: i * 0.09 }); },
+  bowdraw() { this.noise({ type: "bandpass", f0: 900, f1: 1600, q: 3, dur: 0.5, vol: 0.05, attack: 0.3 }); },
+  creak() { this.tone({ type: "sawtooth", f0: 110, f1: 90, dur: 0.18, vol: 0.03 }); },
+  splash() { this.noise({ type: "lowpass", f0: 1400, f1: 300, dur: 0.5, vol: 0.12 }); this.tone({ f0: 420, f1: 160, dur: 0.18, vol: 0.06 }); },
+  slap() { this.noise({ type: "lowpass", f0: 1800, dur: 0.06, vol: 0.2 }); this.tone({ f0: 210, f1: 120, dur: 0.07, vol: 0.12 }); },
+  tick() { this.tone({ type: "triangle", f0: 1600, dur: 0.03, vol: 0.05 }); },
+  whistle() { this.tone({ type: "triangle", f0: 1800, f1: 2400, dur: 0.16, vol: 0.06 }); this.tone({ type: "triangle", f0: 2400, f1: 1700, dur: 0.22, vol: 0.06, delay: 0.17 }); },
+  suspect() { this.tone({ type: "triangle", f0: 520, f1: 760, dur: 0.16, vol: 0.06 }); }
 };
 
 // ------------------------------------------------------------
@@ -333,7 +343,8 @@ const TRACKS = {
   }
 };
 // Each flight borrows the "flight" tune in its own key and mood.
-[["flight1", 50, "mixo", 0.24], ["flight2", 52, "dorian", 0.23], ["flight3", 48, "dorian", 0.235], ["flight4", 50, "hijaz", 0.22], ["flight5", 47, "phrygian", 0.205]]
+[["flight1", 50, "mixo", 0.24], ["flight2", 52, "dorian", 0.23], ["flight3", 48, "dorian", 0.235], ["flight4", 50, "hijaz", 0.22], ["flight5", 47, "phrygian", 0.205],
+  ["flight6", 45, "hijaz", 0.2], ["flight7", 49, "mixo", 0.23], ["flight8", 46, "aeolian", 0.25], ["flight9", 51, "phrygian", 0.215], ["flight10", 53, "mixo", 0.225]]
   .forEach(v => { TRACKS[v[0]] = Object.assign({}, TRACKS.flight, { root: v[1], scale: v[2], step: v[3] }); });
 
 const Music = {
